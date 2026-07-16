@@ -39,3 +39,7 @@ vendor/
 tmp/
 dist/
 build/
+
+# Local Dev Configuration
+test_local/terraformrc
+
