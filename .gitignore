@@ -1,0 +1,41 @@
+# Compiled binaries
+terraform-provider-freeipa
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output files
+*.out
+*.log
+
+# Go dependencies and build artifacts
+bin/
+pkg/
+src/
+vendor/
+.gvm/
+
+# Terraform test workspace files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl
+
+# IDEs, editor and metadata files
+.idea/
+.vscode/
+.understand-anything/
+.agents/
+.gemini/
+.DS_Store
+
+# Temporary artifacts
+tmp/
+dist/
+build/

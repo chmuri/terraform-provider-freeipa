@@ -1,0 +1,35 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Vet and Lint
+        run: go vet ./...
+
+      - name: Build Provider
+        run: go build -o terraform-provider-freeipa
+
+      - name: Run Unit Tests
+        run: go test -v ./client/... ./provider/...
