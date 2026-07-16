@@ -187,3 +187,126 @@ func TestSudoCommandGroupResourceSchema(t *testing.T) {
 		}
 	}
 }
+
+func TestHostGroupResourceSchema(t *testing.T) {
+	r := NewHostGroupResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	if len(resp.Schema.Attributes) == 0 {
+		t.Error("expected hostgroup schema to have attributes, got 0")
+	}
+	for _, attr := range []string{"id", "cn", "description", "hosts", "host_groups", "member_managers"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected hostgroup schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestHbacSvcResourceSchema(t *testing.T) {
+	r := NewHbacSvcResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected hbac service schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestHbacSvcGroupResourceSchema(t *testing.T) {
+	r := NewHbacSvcGroupResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "services"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected hbac service group schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestSudoRuleResourceSchema(t *testing.T) {
+	r := NewSudoRuleResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "enabled", "user_category", "host_category"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected sudo rule schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestDnsZoneResourceSchema(t *testing.T) {
+	r := NewDnsZoneResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "zone_name", "authoritative_nameserver", "admin_email"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected dns zone schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestDnsRecordResourceSchema(t *testing.T) {
+	r := NewDnsRecordResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "zone_name", "name", "record_type", "record_value"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected dns record schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestRoleResourceSchema(t *testing.T) {
+	r := NewRoleResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "privileges", "users"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected role schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestPrivilegeResourceSchema(t *testing.T) {
+	r := NewPrivilegeResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "permissions"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected privilege schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestNetgroupResourceSchema(t *testing.T) {
+	r := NewNetgroupResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "nisdomainname", "users", "groups", "hosts"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected netgroup schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestPwPolicyResourceSchema(t *testing.T) {
+	r := NewPwPolicyResource()
+	ctx := context.Background()
+	resp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "minlength", "maxlife", "minlife", "history", "priority"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected pwpolicy schema to contain attribute: %s", attr)
+		}
+	}
+}

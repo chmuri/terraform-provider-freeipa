@@ -812,6 +812,12 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	opts := map[string]interface{}{}
 
+	if !plan.Cn.IsNull() && !plan.Cn.IsUnknown() {
+		opts["cn"] = plan.Cn.ValueString()
+	} else if !state.Cn.IsNull() && !state.Cn.IsUnknown() {
+		opts["cn"] = state.Cn.ValueString()
+	}
+
 	if !plan.FirstName.Equal(state.FirstName) {
 		opts["givenname"] = plan.FirstName.ValueString()
 	}
@@ -834,14 +840,14 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			opts["ipasshpubkey"] = sshKeys
 		}
 	}
-	if !plan.Cn.Equal(state.Cn) {
+	if !plan.Cn.Equal(state.Cn) && !plan.Cn.IsUnknown() {
 		if plan.Cn.IsNull() {
 			opts["cn"] = ""
 		} else {
 			opts["cn"] = plan.Cn.ValueString()
 		}
 	}
-	if !plan.FullName.Equal(state.FullName) {
+	if !plan.FullName.Equal(state.FullName) && !plan.FullName.IsUnknown() {
 		if plan.FullName.IsNull() {
 			if plan.Cn.IsNull() {
 				opts["cn"] = ""

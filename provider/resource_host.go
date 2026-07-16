@@ -116,11 +116,12 @@ func (r *HostResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "Force host addition even if DNS verification fails.",
 			},
-			"managed_by": schema.SetAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: "Set of host FQDNs that can manage this host.",
-			},
+		"managed_by": schema.SetAttribute{
+			ElementType:         types.StringType,
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "Set of host FQDNs that can manage this host.",
+		},
 		},
 	}
 }
@@ -267,6 +268,11 @@ func (r *HostResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 	if plan.UserCertificate.IsUnknown() {
 		plan.UserCertificate = types.StringNull()
+	}
+	if plan.ManagedBy.IsUnknown() {
+		managedBySet, d := types.SetValueFrom(ctx, types.StringType, []string{plan.FQDN.ValueString()})
+		resp.Diagnostics.Append(d...)
+		plan.ManagedBy = managedBySet
 	}
 
 	diags = resp.State.Set(ctx, plan)
@@ -441,6 +447,13 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	// Calculate managedby delta
 	var planManagedBy, stateManagedBy []string
+	if plan.ManagedBy.IsUnknown() && !state.ManagedBy.IsNull() && !state.ManagedBy.IsUnknown() {
+		var stateMB []string
+		state.ManagedBy.ElementsAs(ctx, &stateMB, false)
+		if len(stateMB) == 1 && stateMB[0] == state.FQDN.ValueString() {
+			plan.ManagedBy = state.ManagedBy
+		}
+	}
 	if !plan.ManagedBy.IsNull() && !plan.ManagedBy.IsUnknown() {
 		plan.ManagedBy.ElementsAs(ctx, &planManagedBy, false)
 	}
@@ -461,12 +474,20 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	if len(removedManagedBy) > 0 {
-		err := r.client.Call(ctx, "host_remove_managedby", []string{plan.ID.ValueString()}, map[string]interface{}{
-			"host": removedManagedBy,
-		}, nil)
-		if err != nil {
-			resp.Diagnostics.AddError("Failed to remove managedby hosts from FreeIPA host", err.Error())
-			return
+		filtered := []string{}
+		for _, h := range removedManagedBy {
+			if h != state.FQDN.ValueString() {
+				filtered = append(filtered, h)
+			}
+		}
+		if len(filtered) > 0 {
+			err := r.client.Call(ctx, "host_remove_managedby", []string{plan.ID.ValueString()}, map[string]interface{}{
+				"host": filtered,
+			}, nil)
+			if err != nil {
+				resp.Diagnostics.AddError("Failed to remove managedby hosts from FreeIPA host", err.Error())
+				return
+			}
 		}
 	}
 
@@ -490,6 +511,9 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 	if plan.UserCertificate.IsUnknown() {
 		plan.UserCertificate = state.UserCertificate
+	}
+	if plan.ManagedBy.IsUnknown() {
+		plan.ManagedBy = state.ManagedBy
 	}
 	if plan.Password.IsUnknown() {
 		plan.Password = state.Password

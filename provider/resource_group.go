@@ -289,20 +289,16 @@ func (r *GroupResource) Update(ctx context.Context, req resource.UpdateRequest, 
 			opts["description"] = plan.Description.ValueString()
 		}
 	}
-	if !plan.GidNumber.Equal(state.GidNumber) {
-		if plan.GidNumber.IsNull() {
-			opts["gidnumber"] = nil
-		} else {
-			opts["gidnumber"] = plan.GidNumber.ValueInt64()
-		}
+	if !plan.GidNumber.Equal(state.GidNumber) && !plan.GidNumber.IsNull() && !plan.GidNumber.IsUnknown() {
+		opts["gidnumber"] = plan.GidNumber.ValueInt64()
 	}
-	if !plan.Nonposix.Equal(state.Nonposix) {
-		if !plan.Nonposix.IsNull() && !plan.Nonposix.IsUnknown() && !plan.Nonposix.ValueBool() && state.Nonposix.ValueBool() {
+	if !plan.Nonposix.Equal(state.Nonposix) && !plan.Nonposix.IsNull() && !plan.Nonposix.IsUnknown() {
+		if !plan.Nonposix.ValueBool() && state.Nonposix.ValueBool() {
 			opts["posix"] = true
 		}
 	}
-	if !plan.External.Equal(state.External) {
-		if !plan.External.IsNull() && !plan.External.IsUnknown() && plan.External.ValueBool() && !state.External.ValueBool() {
+	if !plan.External.Equal(state.External) && !plan.External.IsNull() && !plan.External.IsUnknown() {
+		if plan.External.ValueBool() && !state.External.ValueBool() {
 			opts["external"] = true
 		}
 	}
@@ -396,6 +392,16 @@ func (r *GroupResource) Update(ctx context.Context, req resource.UpdateRequest, 
 			resp.Diagnostics.AddError("Failed to remove member managers from FreeIPA group", err.Error())
 			return
 		}
+	}
+
+	if plan.GidNumber.IsUnknown() {
+		plan.GidNumber = state.GidNumber
+	}
+	if plan.Nonposix.IsUnknown() {
+		plan.Nonposix = state.Nonposix
+	}
+	if plan.External.IsUnknown() {
+		plan.External = state.External
 	}
 
 	diags := resp.State.Set(ctx, plan)

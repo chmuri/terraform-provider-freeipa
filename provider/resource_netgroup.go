@@ -356,6 +356,10 @@ func (r *NetgroupResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
+	if plan.NisDomainName.IsUnknown() {
+		plan.NisDomainName = state.NisDomainName
+	}
+
 	diags := resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
