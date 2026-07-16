@@ -80,7 +80,7 @@ type FreeIPAHbacSvcGroupResult struct {
 	Result struct {
 		Cn                []string `json:"cn"`
 		Description       []string `json:"description"`
-		MemberHbacService []string `json:"member_hbacservice"`
+		MemberHbacSvc []string `json:"member_hbacsvc"`
 	} `json:"result"`
 }
 
@@ -120,6 +120,31 @@ func (r *HbacSvcGroupResource) Create(ctx context.Context, req resource.CreateRe
 
 	plan.ID = plan.Name
 
+	var result FreeIPAHbacSvcGroupResult
+	err = r.client.Call(ctx, "hbacsvcgroup_show", []string{plan.ID.ValueString()}, map[string]interface{}{"all": true}, &result)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to read FreeIPA HBAC service group after create", err.Error())
+		return
+	}
+
+	res := result.Result
+	if len(res.Cn) > 0 {
+		plan.Name = types.StringValue(res.Cn[0])
+		plan.ID = types.StringValue(res.Cn[0])
+	}
+	if len(res.Description) > 0 {
+		plan.Description = types.StringValue(res.Description[0])
+	} else {
+		plan.Description = types.StringNull()
+	}
+	if len(res.MemberHbacSvc) > 0 {
+		svcVal, d := types.SetValueFrom(ctx, types.StringType, res.MemberHbacSvc)
+		resp.Diagnostics.Append(d...)
+		plan.Services = svcVal
+	} else {
+		plan.Services = types.SetNull(types.StringType)
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -154,8 +179,8 @@ func (r *HbacSvcGroupResource) Read(ctx context.Context, req resource.ReadReques
 		state.Description = types.StringNull()
 	}
 
-	if len(res.MemberHbacService) > 0 {
-		svcVal, d := types.SetValueFrom(ctx, types.StringType, res.MemberHbacService)
+	if len(res.MemberHbacSvc) > 0 {
+		svcVal, d := types.SetValueFrom(ctx, types.StringType, res.MemberHbacSvc)
 		resp.Diagnostics.Append(d...)
 		state.Services = svcVal
 	} else {

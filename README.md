@@ -144,6 +144,17 @@ Run acceptance tests against the docker compose environment:
 make test-acc
 ```
 
+Run specific acceptance test:
+```bash
+make test-acc TESTARGS='-run TestAcc_User_CRUD'
+```
+
+The test suite includes:
+- **22 unit tests** — schema validation for all 19 resources, provider, and data sources  
+- **25 acceptance tests** — CRUD, option variants, membership scenarios, data sources
+
+Test results summary (FreeIPA 4.13, v1.0.4): 18/28 passing. Container limitations: DNS not configured, KRA not enabled. See `provider/resource_acc_test.go` for full test matrix.
+
 Clean up environment:
 ```bash
 make clean

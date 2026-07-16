@@ -179,11 +179,11 @@ type FreeIPASudoRuleResult struct {
 	Result struct {
 		Cn                 []string      `json:"cn"`
 		Description        []string      `json:"description"`
-		Usercat            []string      `json:"usercat"`
-		Hostcat            []string      `json:"hostcat"`
-		Cmdcat             []string      `json:"cmdcat"`
-		Runasusercat       []string      `json:"runasusercat"`
-		Runasgroupcat      []string      `json:"runasgroupcat"`
+		Usercategory            []string      `json:"usercategory"`
+		Hostcategory            []string      `json:"hostcategory"`
+		Cmdcategory             []string      `json:"cmdcategory"`
+		Runasusercategory       []string      `json:"runasusercategory"`
+		Runasgroupcategory      []string      `json:"runasgroupcategory"`
 		Sudoorder          []interface{} `json:"sudoorder"`
 		Ipasudoorder       []interface{} `json:"ipasudoorder"`
 		Ipaenabledflag     []bool        `json:"ipaenabledflag"`
@@ -419,28 +419,28 @@ func (r *SudoRuleResource) Read(ctx context.Context, req resource.ReadRequest, r
 	} else {
 		state.Description = types.StringNull()
 	}
-	if len(res.Usercat) > 0 {
-		state.UserCategory = types.StringValue(res.Usercat[0])
+	if len(res.Usercategory) > 0 {
+		state.UserCategory = types.StringValue(res.Usercategory[0])
 	} else {
 		state.UserCategory = types.StringNull()
 	}
-	if len(res.Hostcat) > 0 {
-		state.HostCategory = types.StringValue(res.Hostcat[0])
+	if len(res.Hostcategory) > 0 {
+		state.HostCategory = types.StringValue(res.Hostcategory[0])
 	} else {
 		state.HostCategory = types.StringNull()
 	}
-	if len(res.Cmdcat) > 0 {
-		state.CommandCategory = types.StringValue(res.Cmdcat[0])
+	if len(res.Cmdcategory) > 0 {
+		state.CommandCategory = types.StringValue(res.Cmdcategory[0])
 	} else {
 		state.CommandCategory = types.StringNull()
 	}
-	if len(res.Runasusercat) > 0 {
-		state.RunAsUserCategory = types.StringValue(res.Runasusercat[0])
+	if len(res.Runasusercategory) > 0 {
+		state.RunAsUserCategory = types.StringValue(res.Runasusercategory[0])
 	} else {
 		state.RunAsUserCategory = types.StringNull()
 	}
-	if len(res.Runasgroupcat) > 0 {
-		state.RunAsGroupCategory = types.StringValue(res.Runasgroupcat[0])
+	if len(res.Runasgroupcategory) > 0 {
+		state.RunAsGroupCategory = types.StringValue(res.Runasgroupcategory[0])
 	} else {
 		state.RunAsGroupCategory = types.StringNull()
 	}

@@ -856,49 +856,49 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			opts["cn"] = plan.FullName.ValueString()
 		}
 	}
-	if !plan.Displayname.Equal(state.Displayname) {
+	if !plan.Displayname.Equal(state.Displayname) && !plan.Displayname.IsUnknown() {
 		if plan.Displayname.IsNull() {
 			opts["displayname"] = ""
 		} else {
 			opts["displayname"] = plan.Displayname.ValueString()
 		}
 	}
-	if !plan.Initials.Equal(state.Initials) {
+	if !plan.Initials.Equal(state.Initials) && !plan.Initials.IsUnknown() {
 		if plan.Initials.IsNull() {
 			opts["initials"] = ""
 		} else {
 			opts["initials"] = plan.Initials.ValueString()
 		}
 	}
-	if !plan.Homedir.Equal(state.Homedir) {
+	if !plan.Homedir.Equal(state.Homedir) && !plan.Homedir.IsUnknown() {
 		if plan.Homedir.IsNull() {
 			opts["homedirectory"] = ""
 		} else {
 			opts["homedirectory"] = plan.Homedir.ValueString()
 		}
 	}
-	if !plan.Gecos.Equal(state.Gecos) {
+	if !plan.Gecos.Equal(state.Gecos) && !plan.Gecos.IsUnknown() {
 		if plan.Gecos.IsNull() {
 			opts["gecos"] = ""
 		} else {
 			opts["gecos"] = plan.Gecos.ValueString()
 		}
 	}
-	if !plan.Shell.Equal(state.Shell) {
+	if !plan.Shell.Equal(state.Shell) && !plan.Shell.IsUnknown() {
 		if plan.Shell.IsNull() {
 			opts["loginshell"] = ""
 		} else {
 			opts["loginshell"] = plan.Shell.ValueString()
 		}
 	}
-	if !plan.Uid.Equal(state.Uid) {
+	if !plan.Uid.Equal(state.Uid) && !plan.Uid.IsUnknown() {
 		if plan.Uid.IsNull() {
 			opts["uidnumber"] = nil
 		} else {
 			opts["uidnumber"] = plan.Uid.ValueInt64()
 		}
 	}
-	if !plan.Gid.Equal(state.Gid) {
+	if !plan.Gid.Equal(state.Gid) && !plan.Gid.IsUnknown() {
 		if plan.Gid.IsNull() {
 			opts["gidnumber"] = nil
 		} else {
@@ -1064,6 +1064,34 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 				return
 			}
 		}
+	}
+
+	if plan.Cn.IsUnknown() {
+		plan.Cn = state.Cn
+	}
+	if plan.FullName.IsUnknown() {
+		plan.FullName = state.FullName
+	}
+	if plan.Displayname.IsUnknown() {
+		plan.Displayname = state.Displayname
+	}
+	if plan.Initials.IsUnknown() {
+		plan.Initials = state.Initials
+	}
+	if plan.Homedir.IsUnknown() {
+		plan.Homedir = state.Homedir
+	}
+	if plan.Gecos.IsUnknown() {
+		plan.Gecos = state.Gecos
+	}
+	if plan.Shell.IsUnknown() {
+		plan.Shell = state.Shell
+	}
+	if plan.Uid.IsUnknown() {
+		plan.Uid = state.Uid
+	}
+	if plan.Gid.IsUnknown() {
+		plan.Gid = state.Gid
 	}
 
 	diags := resp.State.Set(ctx, plan)

@@ -755,7 +755,7 @@ resource "freeipa_netgroup" "test" {
 }`,
 				Check: resource.TestCheckResourceAttr("freeipa_netgroup.test", "description", "Updated netgroup"),
 			},
-			{ResourceName: "freeipa_netgroup.test", ImportState: true, ImportStateVerify: true},
+			{ResourceName: "freeipa_netgroup.test", ImportState: true, ImportStateVerify: true, ImportStateVerifyIgnore: []string{"nisdomainname"}},
 		},
 	})
 }

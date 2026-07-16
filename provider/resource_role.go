@@ -184,6 +184,38 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	plan.ID = plan.Name
 
+	var result FreeIPARoleResult
+	err = r.client.Call(ctx, "role_show", []string{plan.ID.ValueString()}, map[string]interface{}{"all": true}, &result)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to read FreeIPA role after create", err.Error())
+		return
+	}
+
+	res := result.Result
+	plan.Name = types.StringValue(parseStringVal(res.Cn))
+	plan.ID = plan.Name
+	if res.Description != nil {
+		plan.Description = types.StringValue(parseStringVal(res.Description))
+	} else {
+		plan.Description = types.StringNull()
+	}
+	privs := parseStringSlice(res.MemberPrivilege)
+	if len(privs) > 0 {
+		privsVal, d := types.SetValueFrom(ctx, types.StringType, privs)
+		resp.Diagnostics.Append(d...)
+		plan.Privileges = privsVal
+	} else {
+		plan.Privileges = types.SetNull(types.StringType)
+	}
+	users = parseStringSlice(res.MemberUser)
+	if len(users) > 0 {
+		usersVal, d := types.SetValueFrom(ctx, types.StringType, users)
+		resp.Diagnostics.Append(d...)
+		plan.Users = usersVal
+	} else {
+		plan.Users = types.SetNull(types.StringType)
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
