@@ -175,16 +175,16 @@ func (r *HostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		opts["description"] = plan.Description.ValueString()
 	}
 	if !plan.Locality.IsNull() && !plan.Locality.IsUnknown() {
-		opts["locality"] = plan.Locality.ValueString()
+		opts["l"] = plan.Locality.ValueString()
 	}
 	if !plan.Location.IsNull() && !plan.Location.IsUnknown() {
-		opts["location"] = plan.Location.ValueString()
+		opts["nshostlocation"] = plan.Location.ValueString()
 	}
 	if !plan.Platform.IsNull() && !plan.Platform.IsUnknown() {
-		opts["platform"] = plan.Platform.ValueString()
+		opts["nshardwareplatform"] = plan.Platform.ValueString()
 	}
 	if !plan.OS.IsNull() && !plan.OS.IsUnknown() {
-		opts["os"] = plan.OS.ValueString()
+		opts["nsosversion"] = plan.OS.ValueString()
 	}
 	if !plan.MacAddress.IsNull() && !plan.MacAddress.IsUnknown() {
 		opts["macaddress"] = plan.MacAddress.ValueString()
@@ -353,32 +353,32 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			opts["description"] = plan.Description.ValueString()
 		}
 	}
-	if !plan.Locality.Equal(state.Locality) {
+	if !plan.Locality.Equal(state.Locality) && !plan.Locality.IsUnknown() {
 		if plan.Locality.IsNull() {
-			opts["locality"] = ""
+			opts["l"] = ""
 		} else {
-			opts["locality"] = plan.Locality.ValueString()
+			opts["l"] = plan.Locality.ValueString()
 		}
 	}
-	if !plan.Location.Equal(state.Location) {
+	if !plan.Location.Equal(state.Location) && !plan.Location.IsUnknown() {
 		if plan.Location.IsNull() {
-			opts["location"] = ""
+			opts["nshostlocation"] = ""
 		} else {
-			opts["location"] = plan.Location.ValueString()
+			opts["nshostlocation"] = plan.Location.ValueString()
 		}
 	}
-	if !plan.Platform.Equal(state.Platform) {
+	if !plan.Platform.Equal(state.Platform) && !plan.Platform.IsUnknown() {
 		if plan.Platform.IsNull() {
-			opts["platform"] = ""
+			opts["nshardwareplatform"] = ""
 		} else {
-			opts["platform"] = plan.Platform.ValueString()
+			opts["nshardwareplatform"] = plan.Platform.ValueString()
 		}
 	}
-	if !plan.OS.Equal(state.OS) {
+	if !plan.OS.Equal(state.OS) && !plan.OS.IsUnknown() {
 		if plan.OS.IsNull() {
-			opts["os"] = ""
+			opts["nsosversion"] = ""
 		} else {
-			opts["os"] = plan.OS.ValueString()
+			opts["nsosversion"] = plan.OS.ValueString()
 		}
 	}
 	if !plan.MacAddress.Equal(state.MacAddress) {
