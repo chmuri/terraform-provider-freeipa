@@ -3,7 +3,7 @@ TF      ?= terraform
 BINARY  := terraform-provider-freeipa
 
 # Nazwa wolumenu i ścieżka do przechowywania czystego stanu
-VOLUME_NAME   := beeripa_freeipa-data
+VOLUME_NAME   := freeipa_freeipa-data
 SNAPSHOT_FILE := .ipa-clean-volume.tar.gz
 
 .PHONY: build test test-unit test-acc test-all docker-up docker-down clean snapshot-create snapshot-restore

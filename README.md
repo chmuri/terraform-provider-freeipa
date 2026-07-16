@@ -1,8 +1,8 @@
-# Terraform Provider FreeIPA (beeripa)
+# Terraform Provider FreeIPA
 
-![beeripa banner](docs/images/banner.jpg)
+![freeipa banner](docs/images/banner.jpg)
 
-`beeripa` is a custom, feature-rich Terraform provider designed to manage identity, access policies, DNS, host enrollment, and secure skiff (Vault) resources directly inside a **FreeIPA** domain using Go and the Terraform Plugin Framework.
+This is a custom, feature-rich Terraform provider designed to manage identity, access policies, DNS, host enrollment, and secure skiff (Vault) resources directly inside a **FreeIPA** domain using Go and the Terraform Plugin Framework.
 
 This provider enables full Infrastructure-as-Code (IaC) pipelines for FreeIPA systems, avoiding manual Web UI operations or shell scripting.
 
