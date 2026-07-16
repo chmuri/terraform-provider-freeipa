@@ -968,7 +968,7 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	if len(opts) > 0 {
 		var result FreeIPAUserResult
 		err := r.client.Call(ctx, method, []string{plan.ID.ValueString()}, opts, &result)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA user", err.Error())
 			return
 		}

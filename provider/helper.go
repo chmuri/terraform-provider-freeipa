@@ -4,7 +4,19 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/chmuri/terraform-provider-freeipa/client"
 )
+
+func isEmptyModlistError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if rpcErr, ok := err.(*client.RPCError); ok {
+		return rpcErr.Code == 4202 // EmptyModlist
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "empty modest") || strings.Contains(strings.ToLower(err.Error()), "no modifications")
+}
 
 // parseStringVal extracts a single string from various possible JSON formats
 func parseStringVal(v interface{}) string {

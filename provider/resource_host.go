@@ -411,7 +411,7 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "host_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA host", err.Error())
 			return
 		}

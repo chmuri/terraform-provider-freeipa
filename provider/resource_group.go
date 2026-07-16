@@ -299,7 +299,7 @@ func (r *GroupResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "group_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA group attributes", err.Error())
 			return
 		}
