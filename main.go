@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/beeripa/terraform-provider-freeipa/provider"
+	"github.com/chmuri/terraform-provider-freeipa/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
@@ -16,7 +16,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/beeripa/freeipa",
+		Address: "registry.terraform.io/chmuri/freeipa",
 		Debug:   debug,
 	}
 

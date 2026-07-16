@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     freeipa = {
-      source = "beeripa/freeipa"
+      source = "chmuri/freeipa"
     }
   }
 }

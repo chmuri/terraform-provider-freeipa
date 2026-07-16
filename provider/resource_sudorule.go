@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/beeripa/terraform-provider-freeipa/client"
+	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

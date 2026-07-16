@@ -1,4 +1,4 @@
-module github.com/beeripa/terraform-provider-freeipa
+module github.com/chmuri/terraform-provider-freeipa
 
 go 1.26.5
 

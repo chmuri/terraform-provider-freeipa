@@ -1,6 +1,6 @@
 provider_installation {
   dev_overrides {
-    "beeripa/freeipa" = "<PATH_TO_YOUR_REPOSITORY_ROOT>"
+    "chmuri/freeipa" = "<PATH_TO_YOUR_REPOSITORY_ROOT>"
   }
   direct {}
 }

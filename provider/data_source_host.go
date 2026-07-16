@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/beeripa/terraform-provider-freeipa/client"
+	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
