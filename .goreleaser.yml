@@ -40,20 +40,20 @@ checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 
-sign:
-  artifacts: checksum
-  args:
-    - "--batch"
-    - "--local-user"
-    - "{{ .Env.GPG_FINGERPRINT }}"
-    - "--pinentry-mode"
-    - "loopback"
-    - "--passphrase"
-    - "{{ .Env.GPG_PASSPHRASE }}"
-    - "--output"
-    - "${signature}"
-    - "--detach-sign"
-    - "${artifact}"
+signs:
+  - artifacts: checksum
+    args:
+      - "--batch"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--pinentry-mode"
+      - "loopback"
+      - "--passphrase"
+      - "{{ .Env.GPG_PASSPHRASE }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
 
 release:
   extra_files:
