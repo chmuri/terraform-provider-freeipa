@@ -37,7 +37,7 @@ resource "freeipa_host" "test_host" {
 }
 
 resource "freeipa_hostgroup" "test_hostgroup" {
-  name        = "test-hostgroup"
+  cn          = "test-hostgroup"
   description = "Test group of web servers"
   hosts       = [freeipa_host.test_host.fqdn]
 }
@@ -82,7 +82,7 @@ resource "freeipa_sudo_rule" "test_sudo_rule" {
   allow_command_groups = [freeipa_sudo_command_group.test_sudo_command_group.name]
 }
 
-# 4. Domain Name System (DNS Zone and Record)
+# 4. Domain Name System (DNS Zone and Record) — requires DNS plugin in FreeIPA
 resource "freeipa_dns_zone" "test_dns_zone" {
   zone_name                = "corp.test.local"
   authoritative_nameserver = "ipa.test.local."
@@ -100,7 +100,6 @@ resource "freeipa_dns_record" "test_dns_record" {
 resource "freeipa_privilege" "test_privilege" {
   name        = "test-privilege"
   description = "Test Privilege"
-  permissions = ["System: Read HBAC Rules"]
 }
 
 resource "freeipa_role" "test_role" {
@@ -123,7 +122,7 @@ resource "freeipa_password_policy" "test_password_policy" {
   maxlife   = 90
 }
 
-# 8. Secure Skiff Storage (Vault, Owner, and Member)
+# 8. Secure Skiff Storage (Vault, Owner, and Member) — requires KRA in FreeIPA
 resource "freeipa_vault" "test_vault" {
   name        = "test-vault"
   description = "Test Vault"

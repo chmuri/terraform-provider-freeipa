@@ -146,31 +146,33 @@ func (r *PwPolicyResource) Create(ctx context.Context, req resource.CreateReques
 
 	opts := map[string]interface{}{}
 	if !plan.MinLife.IsNull() && !plan.MinLife.IsUnknown() {
-		opts["minlife"] = plan.MinLife.ValueInt64()
+		opts["krbminpwdlife"] = plan.MinLife.ValueInt64()
 	}
 	if !plan.MaxLife.IsNull() && !plan.MaxLife.IsUnknown() {
-		opts["maxlife"] = plan.MaxLife.ValueInt64()
+		opts["krbmaxpwdlife"] = plan.MaxLife.ValueInt64()
 	}
 	if !plan.MinLength.IsNull() && !plan.MinLength.IsUnknown() {
-		opts["minlength"] = plan.MinLength.ValueInt64()
+		opts["krbpwdminlength"] = plan.MinLength.ValueInt64()
 	}
 	if !plan.History.IsNull() && !plan.History.IsUnknown() {
-		opts["history"] = plan.History.ValueInt64()
+		opts["krbpwdhistorylength"] = plan.History.ValueInt64()
 	}
 	if !plan.Priority.IsNull() && !plan.Priority.IsUnknown() {
-		opts["priority"] = plan.Priority.ValueInt64()
+		opts["cospriority"] = plan.Priority.ValueInt64()
+	} else {
+		opts["cospriority"] = int64(1)
 	}
 	if !plan.MinClasses.IsNull() && !plan.MinClasses.IsUnknown() {
-		opts["minclasses"] = plan.MinClasses.ValueInt64()
+		opts["krbpwdmindiffchars"] = plan.MinClasses.ValueInt64()
 	}
 	if !plan.MaxFail.IsNull() && !plan.MaxFail.IsUnknown() {
-		opts["maxfail"] = plan.MaxFail.ValueInt64()
+		opts["krbpwdmaxfailure"] = plan.MaxFail.ValueInt64()
 	}
 	if !plan.FailInterval.IsNull() && !plan.FailInterval.IsUnknown() {
-		opts["failinterval"] = plan.FailInterval.ValueInt64()
+		opts["krbpwdfailinterval"] = plan.FailInterval.ValueInt64()
 	}
 	if !plan.LockoutTime.IsNull() && !plan.LockoutTime.IsUnknown() {
-		opts["lockouttime"] = plan.LockoutTime.ValueInt64()
+		opts["krbpwdlockoutduration"] = plan.LockoutTime.ValueInt64()
 	}
 
 	if plan.Name.ValueString() == "global" {
@@ -189,6 +191,34 @@ func (r *PwPolicyResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	plan.ID = plan.Name
+
+	if plan.MinLife.IsUnknown() {
+		plan.MinLife = types.Int64Null()
+	}
+	if plan.MaxLife.IsUnknown() {
+		plan.MaxLife = types.Int64Null()
+	}
+	if plan.MinLength.IsUnknown() {
+		plan.MinLength = types.Int64Null()
+	}
+	if plan.History.IsUnknown() {
+		plan.History = types.Int64Null()
+	}
+	if plan.Priority.IsUnknown() {
+		plan.Priority = types.Int64Value(1)
+	}
+	if plan.MinClasses.IsUnknown() {
+		plan.MinClasses = types.Int64Null()
+	}
+	if plan.MaxFail.IsUnknown() {
+		plan.MaxFail = types.Int64Null()
+	}
+	if plan.FailInterval.IsUnknown() {
+		plan.FailInterval = types.Int64Null()
+	}
+	if plan.LockoutTime.IsUnknown() {
+		plan.LockoutTime = types.Int64Null()
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -245,65 +275,65 @@ func (r *PwPolicyResource) Update(ctx context.Context, req resource.UpdateReques
 	opts := map[string]interface{}{}
 	if !plan.MinLife.Equal(state.MinLife) {
 		if plan.MinLife.IsNull() {
-			opts["minlife"] = ""
+			opts["krbminpwdlife"] = ""
 		} else {
-			opts["minlife"] = plan.MinLife.ValueInt64()
+			opts["krbminpwdlife"] = plan.MinLife.ValueInt64()
 		}
 	}
 	if !plan.MaxLife.Equal(state.MaxLife) {
 		if plan.MaxLife.IsNull() {
-			opts["maxlife"] = ""
+			opts["krbmaxpwdlife"] = ""
 		} else {
-			opts["maxlife"] = plan.MaxLife.ValueInt64()
+			opts["krbmaxpwdlife"] = plan.MaxLife.ValueInt64()
 		}
 	}
 	if !plan.MinLength.Equal(state.MinLength) {
 		if plan.MinLength.IsNull() {
-			opts["minlength"] = ""
+			opts["krbpwdminlength"] = ""
 		} else {
-			opts["minlength"] = plan.MinLength.ValueInt64()
+			opts["krbpwdminlength"] = plan.MinLength.ValueInt64()
 		}
 	}
 	if !plan.History.Equal(state.History) {
 		if plan.History.IsNull() {
-			opts["history"] = ""
+			opts["krbpwdhistorylength"] = ""
 		} else {
-			opts["history"] = plan.History.ValueInt64()
+			opts["krbpwdhistorylength"] = plan.History.ValueInt64()
 		}
 	}
 	if !plan.Priority.Equal(state.Priority) {
 		if plan.Priority.IsNull() {
-			opts["priority"] = ""
+			opts["cospriority"] = ""
 		} else {
-			opts["priority"] = plan.Priority.ValueInt64()
+			opts["cospriority"] = plan.Priority.ValueInt64()
 		}
 	}
 	if !plan.MinClasses.Equal(state.MinClasses) {
 		if plan.MinClasses.IsNull() {
-			opts["minclasses"] = ""
+			opts["krbpwdmindiffchars"] = ""
 		} else {
-			opts["minclasses"] = plan.MinClasses.ValueInt64()
+			opts["krbpwdmindiffchars"] = plan.MinClasses.ValueInt64()
 		}
 	}
 	if !plan.MaxFail.Equal(state.MaxFail) {
 		if plan.MaxFail.IsNull() {
-			opts["maxfail"] = ""
+			opts["krbpwdmaxfailure"] = ""
 		} else {
-			opts["maxfail"] = plan.MaxFail.ValueInt64()
+			opts["krbpwdmaxfailure"] = plan.MaxFail.ValueInt64()
 		}
 	}
 	if !plan.FailInterval.Equal(state.FailInterval) {
 		if plan.FailInterval.IsNull() {
-			opts["failinterval"] = ""
+			opts["krbpwdfailinterval"] = ""
 		} else {
-			opts["failinterval"] = plan.FailInterval.ValueInt64()
+			opts["krbpwdfailinterval"] = plan.FailInterval.ValueInt64()
 		}
 	}
 	if !plan.LockoutTime.Equal(state.LockoutTime) {
 		if plan.LockoutTime.IsNull() {
-			opts["lockouttime"] = ""
+			opts["krbpwdlockoutduration"] = ""
 		} else {
-			opts["lockouttime"] = plan.LockoutTime.ValueInt64()
+			opts["krbpwdlockoutduration"] = plan.LockoutTime.ValueInt64()
 		}
 	}
 

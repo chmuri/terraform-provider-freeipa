@@ -60,6 +60,7 @@ func (r *NetgroupResource) Schema(ctx context.Context, req resource.SchemaReques
 			},
 			"nisdomainname": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				MarkdownDescription: "NIS domain name (nisdomainname).",
 			},
 			"users": schema.SetAttribute{
@@ -183,6 +184,10 @@ func (r *NetgroupResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	plan.ID = plan.Name
+
+	if plan.NisDomainName.IsUnknown() {
+		plan.NisDomainName = types.StringNull()
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

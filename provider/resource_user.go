@@ -469,6 +469,76 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 	}
 
+	if plan.Cn.IsNull() || plan.Cn.IsUnknown() {
+		if len(result.Result.Cn) > 0 {
+			plan.Cn = types.StringValue(result.Result.Cn[0])
+		} else {
+			plan.Cn = types.StringNull()
+		}
+	}
+	if plan.FullName.IsNull() || plan.FullName.IsUnknown() {
+		plan.FullName = plan.Cn
+	}
+	if plan.Displayname.IsNull() || plan.Displayname.IsUnknown() {
+		if len(result.Result.Displayname) > 0 {
+			plan.Displayname = types.StringValue(result.Result.Displayname[0])
+		} else {
+			plan.Displayname = types.StringNull()
+		}
+	}
+	if plan.Initials.IsNull() || plan.Initials.IsUnknown() {
+		if len(result.Result.Initials) > 0 {
+			plan.Initials = types.StringValue(result.Result.Initials[0])
+		} else {
+			plan.Initials = types.StringNull()
+		}
+	}
+	if plan.Homedir.IsNull() || plan.Homedir.IsUnknown() {
+		if len(result.Result.Homedirectory) > 0 {
+			plan.Homedir = types.StringValue(result.Result.Homedirectory[0])
+		} else {
+			plan.Homedir = types.StringNull()
+		}
+	}
+	if plan.Gecos.IsNull() || plan.Gecos.IsUnknown() {
+		if len(result.Result.Gecos) > 0 {
+			plan.Gecos = types.StringValue(result.Result.Gecos[0])
+		} else {
+			plan.Gecos = types.StringNull()
+		}
+	}
+	if plan.Shell.IsNull() || plan.Shell.IsUnknown() {
+		if len(result.Result.Loginshell) > 0 {
+			plan.Shell = types.StringValue(result.Result.Loginshell[0])
+		} else {
+			plan.Shell = types.StringNull()
+		}
+	}
+	if plan.Uid.IsNull() || plan.Uid.IsUnknown() {
+		if len(result.Result.Uidnumber) > 0 {
+			uidVal, err := strconv.ParseInt(result.Result.Uidnumber[0], 10, 64)
+			if err == nil {
+				plan.Uid = types.Int64Value(uidVal)
+			} else {
+				plan.Uid = types.Int64Null()
+			}
+		} else {
+			plan.Uid = types.Int64Null()
+		}
+	}
+	if plan.Gid.IsNull() || plan.Gid.IsUnknown() {
+		if len(result.Result.Gidnumber) > 0 {
+			gidVal, err := strconv.ParseInt(result.Result.Gidnumber[0], 10, 64)
+			if err == nil {
+				plan.Gid = types.Int64Value(gidVal)
+			} else {
+				plan.Gid = types.Int64Null()
+			}
+		} else {
+			plan.Gid = types.Int64Null()
+		}
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }

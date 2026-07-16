@@ -214,19 +214,19 @@ func (r *SudoRuleResource) Create(ctx context.Context, req resource.CreateReques
 		opts["description"] = plan.Description.ValueString()
 	}
 	if !plan.UserCategory.IsNull() && !plan.UserCategory.IsUnknown() {
-		opts["usercat"] = plan.UserCategory.ValueString()
+		opts["usercategory"] = plan.UserCategory.ValueString()
 	}
 	if !plan.HostCategory.IsNull() && !plan.HostCategory.IsUnknown() {
-		opts["hostcat"] = plan.HostCategory.ValueString()
+		opts["hostcategory"] = plan.HostCategory.ValueString()
 	}
 	if !plan.CommandCategory.IsNull() && !plan.CommandCategory.IsUnknown() {
-		opts["cmdcat"] = plan.CommandCategory.ValueString()
+		opts["cmdcategory"] = plan.CommandCategory.ValueString()
 	}
 	if !plan.RunAsUserCategory.IsNull() && !plan.RunAsUserCategory.IsUnknown() {
-		opts["runasusercat"] = plan.RunAsUserCategory.ValueString()
+		opts["runasusercategory"] = plan.RunAsUserCategory.ValueString()
 	}
 	if !plan.RunAsGroupCategory.IsNull() && !plan.RunAsGroupCategory.IsUnknown() {
-		opts["runasgroupcat"] = plan.RunAsGroupCategory.ValueString()
+		opts["runasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
 	}
 	if !plan.Order.IsNull() && !plan.Order.IsUnknown() {
 		opts["sudoorder"] = plan.Order.ValueInt64()
@@ -594,37 +594,37 @@ func (r *SudoRuleResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	if !plan.UserCategory.Equal(state.UserCategory) {
 		if plan.UserCategory.IsNull() {
-			modOpts["usercat"] = ""
+			modOpts["usercategory"] = ""
 		} else {
-			modOpts["usercat"] = plan.UserCategory.ValueString()
+			modOpts["usercategory"] = plan.UserCategory.ValueString()
 		}
 	}
 	if !plan.HostCategory.Equal(state.HostCategory) {
 		if plan.HostCategory.IsNull() {
-			modOpts["hostcat"] = ""
+			modOpts["hostcategory"] = ""
 		} else {
-			modOpts["hostcat"] = plan.HostCategory.ValueString()
+			modOpts["hostcategory"] = plan.HostCategory.ValueString()
 		}
 	}
 	if !plan.CommandCategory.Equal(state.CommandCategory) {
 		if plan.CommandCategory.IsNull() {
-			modOpts["cmdcat"] = ""
+			modOpts["cmdcategory"] = ""
 		} else {
-			modOpts["cmdcat"] = plan.CommandCategory.ValueString()
+			modOpts["cmdcategory"] = plan.CommandCategory.ValueString()
 		}
 	}
 	if !plan.RunAsUserCategory.Equal(state.RunAsUserCategory) {
 		if plan.RunAsUserCategory.IsNull() {
-			modOpts["runasusercat"] = ""
+			modOpts["runasusercategory"] = ""
 		} else {
-			modOpts["runasusercat"] = plan.RunAsUserCategory.ValueString()
+			modOpts["runasusercategory"] = plan.RunAsUserCategory.ValueString()
 		}
 	}
 	if !plan.RunAsGroupCategory.Equal(state.RunAsGroupCategory) {
 		if plan.RunAsGroupCategory.IsNull() {
-			modOpts["runasgroupcat"] = ""
+			modOpts["runasgroupcategory"] = ""
 		} else {
-			modOpts["runasgroupcat"] = plan.RunAsGroupCategory.ValueString()
+			modOpts["runasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
 		}
 	}
 	if !plan.Order.Equal(state.Order) {
@@ -637,7 +637,7 @@ func (r *SudoRuleResource) Update(ctx context.Context, req resource.UpdateReques
 
 	if len(modOpts) > 0 {
 		err := r.client.Call(ctx, "sudorule_mod", []string{plan.ID.ValueString()}, modOpts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update Sudo rule attributes", err.Error())
 			return
 		}

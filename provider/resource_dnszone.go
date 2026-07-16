@@ -215,8 +215,9 @@ func (r *DnsZoneResource) Create(ctx context.Context, req resource.CreateRequest
 	if !plan.AuthoritativeNameserver.IsNull() && !plan.AuthoritativeNameserver.IsUnknown() {
 		opts["idnssoamname"] = plan.AuthoritativeNameserver.ValueString()
 	}
+	adminEmail := ""
 	if !plan.AdminEmail.IsNull() && !plan.AdminEmail.IsUnknown() {
-		opts["idnssoamailaddr"] = plan.AdminEmail.ValueString()
+		adminEmail = plan.AdminEmail.ValueString()
 	}
 	if !plan.Refresh.IsNull() && !plan.Refresh.IsUnknown() {
 		opts["idnssoarefresh"] = plan.Refresh.ValueInt64()
@@ -263,6 +264,16 @@ func (r *DnsZoneResource) Create(ctx context.Context, req resource.CreateRequest
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create FreeIPA DNS zone", err.Error())
 		return
+	}
+
+	if adminEmail != "" {
+		err = r.client.Call(ctx, "dnszone_mod", []string{plan.ZoneName.ValueString()}, map[string]interface{}{
+			"idnssoamailaddr": adminEmail,
+		}, nil)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to set admin email on FreeIPA DNS zone", err.Error())
+			return
+		}
 	}
 
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() && !plan.Enabled.ValueBool() {

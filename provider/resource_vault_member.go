@@ -90,19 +90,19 @@ func (r *VaultMemberResource) Create(ctx context.Context, req resource.CreateReq
 	if !plan.Users.IsNull() && !plan.Users.IsUnknown() {
 		plan.Users.ElementsAs(ctx, &u, false)
 		if len(u) > 0 {
-			memberOpts["users"] = u
+			memberOpts["user"] = u
 		}
 	}
 	if !plan.Groups.IsNull() && !plan.Groups.IsUnknown() {
 		plan.Groups.ElementsAs(ctx, &g, false)
 		if len(g) > 0 {
-			memberOpts["groups"] = g
+			memberOpts["group"] = g
 		}
 	}
 	if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
 		plan.Services.ElementsAs(ctx, &s, false)
 		if len(s) > 0 {
-			memberOpts["services"] = s
+			memberOpts["service"] = s
 		}
 	}
 	if len(memberOpts) == 0 {
@@ -191,9 +191,9 @@ func (r *VaultMemberResource) Update(ctx context.Context, req resource.UpdateReq
 		Param       string
 	}
 	diffs := []diffInfo{
-		{plan.Users, state.Users, "users"},
-		{plan.Groups, state.Groups, "groups"},
-		{plan.Services, state.Services, "services"},
+		{plan.Users, state.Users, "user"},
+		{plan.Groups, state.Groups, "group"},
+		{plan.Services, state.Services, "service"},
 	}
 	for _, d := range diffs {
 		var planVals, stateVals []string
@@ -246,13 +246,13 @@ func (r *VaultMemberResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 	opts := map[string]interface{}{}
 	if len(users) > 0 {
-		opts["users"] = users
+		opts["user"] = users
 	}
 	if len(groups) > 0 {
-		opts["groups"] = groups
+		opts["group"] = groups
 	}
 	if len(services) > 0 {
-		opts["services"] = services
+		opts["service"] = services
 	}
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "vault_remove_member", []string{state.Name.ValueString()}, opts, nil)

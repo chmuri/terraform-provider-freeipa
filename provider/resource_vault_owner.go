@@ -87,15 +87,15 @@ func (r *VaultOwnerResource) Create(ctx context.Context, req resource.CreateRequ
     var u, g, s []string
     if !plan.OwnerUsers.IsNull() && !plan.OwnerUsers.IsUnknown() {
         plan.OwnerUsers.ElementsAs(ctx, &u, false)
-        if len(u) > 0 { ownerOpts["users"] = u }
+        if len(u) > 0 { ownerOpts["user"] = u }
     }
     if !plan.OwnerGroups.IsNull() && !plan.OwnerGroups.IsUnknown() {
         plan.OwnerGroups.ElementsAs(ctx, &g, false)
-        if len(g) > 0 { ownerOpts["groups"] = g }
+        if len(g) > 0 { ownerOpts["group"] = g }
     }
     if !plan.OwnerServices.IsNull() && !plan.OwnerServices.IsUnknown() {
         plan.OwnerServices.ElementsAs(ctx, &s, false)
-        if len(s) > 0 { ownerOpts["services"] = s }
+        if len(s) > 0 { ownerOpts["service"] = s }
     }
     if len(ownerOpts) == 0 {
         resp.Diagnostics.AddError("No owners supplied", "At least one owner (user, group or service) must be defined.")
@@ -168,7 +168,7 @@ func (r *VaultOwnerResource) Update(ctx context.Context, req resource.UpdateRequ
 
     // Compute diffs for each attribute
     type diffInfo struct { Plan, State types.Set; Param string }
-    diffs := []diffInfo{{plan.OwnerUsers, state.OwnerUsers, "users"}, {plan.OwnerGroups, state.OwnerGroups, "groups"}, {plan.OwnerServices, state.OwnerServices, "services"}}
+    diffs := []diffInfo{{plan.OwnerUsers, state.OwnerUsers, "user"}, {plan.OwnerGroups, state.OwnerGroups, "group"}, {plan.OwnerServices, state.OwnerServices, "service"}}
     for _, d := range diffs {
         var planVals, stateVals []string
         if !d.Plan.IsNull() && !d.Plan.IsUnknown() { d.Plan.ElementsAs(ctx, &planVals, false) }
@@ -201,9 +201,9 @@ func (r *VaultOwnerResource) Delete(ctx context.Context, req resource.DeleteRequ
     if !state.OwnerGroups.IsNull() && !state.OwnerGroups.IsUnknown() { state.OwnerGroups.ElementsAs(ctx, &groups, false) }
     if !state.OwnerServices.IsNull() && !state.OwnerServices.IsUnknown() { state.OwnerServices.ElementsAs(ctx, &services, false) }
     opts := map[string]interface{}{}
-    if len(users) > 0 { opts["users"] = users }
-    if len(groups) > 0 { opts["groups"] = groups }
-    if len(services) > 0 { opts["services"] = services }
+    if len(users) > 0 { opts["user"] = users }
+    if len(groups) > 0 { opts["group"] = groups }
+    if len(services) > 0 { opts["service"] = services }
     if len(opts) > 0 {
         err := r.client.Call(ctx, "vault_remove_owner", []string{state.Name.ValueString()}, opts, nil)
         if err != nil && !isNotFoundError(err) {

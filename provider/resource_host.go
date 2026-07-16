@@ -247,6 +247,28 @@ func (r *HostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 	}
 
+	if plan.Force.IsUnknown() {
+		plan.Force = types.BoolValue(true)
+	}
+	if plan.Locality.IsUnknown() {
+		plan.Locality = types.StringNull()
+	}
+	if plan.Location.IsUnknown() {
+		plan.Location = types.StringNull()
+	}
+	if plan.Platform.IsUnknown() {
+		plan.Platform = types.StringNull()
+	}
+	if plan.OS.IsUnknown() {
+		plan.OS = types.StringNull()
+	}
+	if plan.MacAddress.IsUnknown() {
+		plan.MacAddress = types.StringNull()
+	}
+	if plan.UserCertificate.IsUnknown() {
+		plan.UserCertificate = types.StringNull()
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -446,6 +468,31 @@ func (r *HostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			resp.Diagnostics.AddError("Failed to remove managedby hosts from FreeIPA host", err.Error())
 			return
 		}
+	}
+
+	if plan.Force.IsUnknown() {
+		plan.Force = state.Force
+	}
+	if plan.Locality.IsUnknown() {
+		plan.Locality = state.Locality
+	}
+	if plan.Location.IsUnknown() {
+		plan.Location = state.Location
+	}
+	if plan.Platform.IsUnknown() {
+		plan.Platform = state.Platform
+	}
+	if plan.OS.IsUnknown() {
+		plan.OS = state.OS
+	}
+	if plan.MacAddress.IsUnknown() {
+		plan.MacAddress = state.MacAddress
+	}
+	if plan.UserCertificate.IsUnknown() {
+		plan.UserCertificate = state.UserCertificate
+	}
+	if plan.Password.IsUnknown() {
+		plan.Password = state.Password
 	}
 
 	diags := resp.State.Set(ctx, plan)

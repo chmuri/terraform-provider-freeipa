@@ -189,6 +189,16 @@ func (r *GroupResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 	plan.ID = plan.Name
 
+	if plan.GidNumber.IsUnknown() {
+		plan.GidNumber = types.Int64Null()
+	}
+	if plan.Nonposix.IsUnknown() {
+		plan.Nonposix = types.BoolValue(false)
+	}
+	if plan.External.IsUnknown() {
+		plan.External = types.BoolValue(false)
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }

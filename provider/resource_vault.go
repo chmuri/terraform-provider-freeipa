@@ -99,11 +99,8 @@ func (r *VaultResource) Create(ctx context.Context, req resource.CreateRequest, 
 	if !plan.Description.IsNull() && !plan.Description.IsUnknown() {
 		opts["description"] = plan.Description.ValueString()
 	}
-	if !plan.Type.IsNull() && !plan.Type.IsUnknown() {
-		opts["type"] = plan.Type.ValueString()
-	}
 
-	err := r.client.Call(ctx, "vault_add", []string{plan.Name.ValueString()}, opts, nil)
+	err := r.client.Call(ctx, "vault_add_internal", []string{plan.Name.ValueString()}, opts, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to create FreeIPA vault", err.Error())
 		return
