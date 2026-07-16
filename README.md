@@ -35,7 +35,7 @@ To configure Terraform to use this provider from your private/public registry, a
 terraform {
   required_providers {
     freeipa = {
-      source  = "app.terraform.io/chmuri/freeipa/beeripa"
+      source  = "chmuri/freeipa"
       version = "~> 1.0.0"
     }
   }
