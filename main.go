@@ -9,6 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
+var (
+	// version is populated by GoReleaser. Default is 1.0.1.
+	version string = "1.0.1"
+)
+
 func main() {
 	var debug bool
 
@@ -20,7 +25,7 @@ func main() {
 		Debug:   debug,
 	}
 
-	err := providerserver.Serve(context.Background(), provider.New("1.0.0"), opts)
+	err := providerserver.Serve(context.Background(), provider.New(version), opts)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
