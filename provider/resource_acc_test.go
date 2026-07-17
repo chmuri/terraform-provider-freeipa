@@ -3,12 +3,61 @@ package provider
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
 	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
+
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
+func init() {
+	resource.AddTestSweepers("freeipa_user", &resource.Sweeper{
+		Name: "freeipa_user",
+		F:    sweepUsers,
+	})
+}
+
+func sweepUsers(region string) error {
+	cfg := &client.Config{
+		Host: os.Getenv("FREEIPA_HOST"), Insecure: true,
+		AuthMethod: client.AuthPassword,
+		Username: os.Getenv("FREEIPA_USERNAME"),
+		Password: os.Getenv("FREEIPA_PASSWORD"),
+	}
+	c, err := client.NewClient(cfg)
+	if err != nil {
+		return err
+	}
+	if err := c.Login(); err != nil {
+		log.Printf("[WARN] sweeper login failed: %v", err)
+		return nil
+	}
+	ctx := context.Background()
+	prefixes := []string{"acc_", "acc-test", "acc-ds"}
+	for _, prefix := range prefixes {
+		var result map[string]interface{}
+		if err := c.Call(ctx, "user_find", []string{prefix}, nil, &result); err == nil {
+			if res, ok := result["result"].(map[string]interface{}); ok {
+				if members, ok := res["result"].([]interface{}); ok {
+					for _, m := range members {
+						if u, ok := m.(map[string]interface{}); ok {
+							if uid, ok := u["uid"].([]interface{}); ok && len(uid) > 0 {
+								username := fmt.Sprintf("%v", uid[0])
+								c.Call(ctx, "user_del", []string{username}, nil, nil)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
 
 const providerConfig = `
 provider "freeipa" {
