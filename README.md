@@ -2,7 +2,7 @@
 
 ![freeipa banner](docs/images/banner.jpg)
 
-This is a custom, feature-rich Terraform provider designed to manage identity, access policies, DNS, host enrollment, and secure skiff (Vault) resources directly inside a **FreeIPA** domain using Go and the Terraform Plugin Framework.
+This is a custom, feature-rich Terraform provider designed to manage identity, access policies, DNS, host enrollment, and secure skiff (Vault) resources directly inside a **FreeIPA** domain using GH[...]
 
 This provider enables full Infrastructure-as-Code (IaC) pipelines for FreeIPA systems, avoiding manual Web UI operations or shell scripting.
 
@@ -36,7 +36,7 @@ terraform {
   required_providers {
     freeipa = {
       source  = "chmuri/freeipa"
-      version = "~> 1.0.0"
+      version = "~> 1.0.4"
     }
   }
 }
