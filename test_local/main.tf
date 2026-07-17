@@ -2,7 +2,7 @@ terraform {
   required_providers {
     freeipa = {
       source  = "chmuri/freeipa"
-      version = "~> 1.0.5"
+      version = "~> 1.0.6"
     }
   }
 }

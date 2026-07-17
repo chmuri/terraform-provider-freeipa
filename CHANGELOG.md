@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.6 (2026-07-17)
+
+### Fixed
+- **isNotFoundError**: Corrected error code from 4002 (DuplicateEntry) to 4001 (NotFound). This fixes stale-state detection for deleted resources, user staged fallback reads, and all delete/read error handling across the provider.
+- **sudo_rule**: Fixed `runas_user_category` and `runas_group_category` API parameter names (`runasusercategory` → `ipasudorunasusercategory`, `runasgroupcategory` → `ipasudorunasgroupcategory`). Also fixed corresponding JSON response tags.
+
+### Added
+- **16 new acceptance tests** (46 total, 39 passing):
+  - Update tests: HostGroup, HbacSvc, SudoCommand, SudoCommandGroup
+  - Import tests: HbacRule, Role, PwPolicy
+  - Option coverage: nonposix groups, SSH keys on hosts, sudo rule options, deny commands, run-as users/groups, user_category on HBAC rules, lockout policies, member managers
+- **`parseStringVal`**: Added support for FreeIPA DNS name objects (`{"__dns_name__": "..."}` format)
+
+### Changed
+- **version**: 1.0.5 → 1.0.6
+
 ## v1.0.5 (2026-07-17)
 
 ### Added

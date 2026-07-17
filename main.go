@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	// version is populated by GoReleaser. Default is 1.0.5.
-	version string = "1.0.5"
+	// version is populated by GoReleaser. Default is 1.0.6.
+	version string = "1.0.6"
 )
 
 func main() {

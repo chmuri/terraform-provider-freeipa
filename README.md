@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-28%2F28%20unit%20%7C%2030%2F31%20acc-brightgreen)](#)
 [![FreeIPA](https://img.shields.io/badge/FreeIPA-4.13-cc0000)](https://www.freeipa.org/)
-[![Version](https://img.shields.io/badge/version-1.0.5-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
+[![Version](https://img.shields.io/badge/version-1.0.6-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
 
 ![freeipa banner](docs/images/banner.jpg)
 
@@ -42,7 +42,7 @@ terraform {
   required_providers {
     freeipa = {
       source  = "chmuri/freeipa"
-      version = "~> 1.0.5"
+      version = "~> 1.0.6"
     }
   }
 }
@@ -159,7 +159,7 @@ The test suite includes:
 - **28 unit tests** — schema validation for all 19 resources, 6 data sources, and provider  
 - **31 acceptance tests** — CRUD, option variants, membership scenarios, data sources
 
-Test results summary (FreeIPA 4.13, v1.0.5): 30/31 passing (97%). KRA not enabled in test container (Vault tests). See `provider/resource_acc_test.go` for full test matrix.
+Test results summary (FreeIPA 4.13, v1.0.6): 39/46 passing (85%). KRA not enabled (Vault tests), DNS zone needs Read-after-Create. See `provider/resource_acc_test.go` for full test matrix.
 
 Clean up environment:
 ```bash
