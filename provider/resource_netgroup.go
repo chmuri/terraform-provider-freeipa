@@ -111,10 +111,10 @@ type FreeIPANetgroupResult struct {
 		Cn              interface{} `json:"cn"`
 		Description     interface{} `json:"description"`
 		NisDomainName   interface{} `json:"nisdomainname"`
-		MemberUser      interface{} `json:"member_user"`
-		MemberGroup     interface{} `json:"member_group"`
-		MemberHost      interface{} `json:"member_host"`
-		MemberHostGroup interface{} `json:"member_hostgroup"`
+		MemberUser      interface{} `json:"memberuser_user"`
+		MemberGroup     interface{} `json:"memberuser_group"`
+		MemberHost      interface{} `json:"memberhost_host"`
+		MemberHostGroup interface{} `json:"memberhost_hostgroup"`
 		MemberNetgroup  interface{} `json:"member_netgroup"`
 	} `json:"result"`
 }
@@ -185,8 +185,43 @@ func (r *NetgroupResource) Create(ctx context.Context, req resource.CreateReques
 
 	plan.ID = plan.Name
 
-	if plan.NisDomainName.IsUnknown() {
+	var result FreeIPANetgroupResult
+	err = r.client.Call(ctx, "netgroup_show", []string{plan.ID.ValueString()}, map[string]interface{}{"all": true}, &result)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to read FreeIPA netgroup after create", err.Error())
+		return
+	}
+
+	res := result.Result
+	plan.Name = types.StringValue(parseStringVal(res.Cn))
+	plan.ID = plan.Name
+	if res.Description != nil {
+		plan.Description = types.StringValue(parseStringVal(res.Description))
+	} else {
+		plan.Description = types.StringNull()
+	}
+	if res.NisDomainName != nil {
+		plan.NisDomainName = types.StringValue(parseStringVal(res.NisDomainName))
+	} else {
 		plan.NisDomainName = types.StringNull()
+	}
+
+	users = parseStringSlice(res.MemberUser)
+	if len(users) > 0 {
+		usersVal, d := types.SetValueFrom(ctx, types.StringType, users)
+		resp.Diagnostics.Append(d...)
+		plan.Users = usersVal
+	} else {
+		plan.Users = types.SetNull(types.StringType)
+	}
+
+	hosts = parseStringSlice(res.MemberHost)
+	if len(hosts) > 0 {
+		hostsVal, d := types.SetValueFrom(ctx, types.StringType, hosts)
+		resp.Diagnostics.Append(d...)
+		plan.Hosts = hostsVal
+	} else {
+		plan.Hosts = types.SetNull(types.StringType)
 	}
 
 	diags = resp.State.Set(ctx, plan)

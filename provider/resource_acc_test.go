@@ -1,10 +1,12 @@
 package provider
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
+	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -174,7 +176,6 @@ resource "freeipa_user" "test" {
   mobile      = "5550001"
   pager       = "5550002"
   fax         = "5550003"
-  manager     = ""
   carlicense  = "ABC123"
   preferredlanguage = "en"
 }`,
@@ -762,6 +763,24 @@ resource "freeipa_netgroup" "test" {
 
 func TestAcc_Netgroup_WithMembers(t *testing.T) {
 	skipIfNotAcc(t)
+	// Clean up orphaned resources from previous test runs
+	cleanupOrphan := func() {
+		cfg := &client.Config{
+			Host: os.Getenv("FREEIPA_HOST"), Insecure: true,
+			AuthMethod: client.AuthPassword,
+			Username: os.Getenv("FREEIPA_USERNAME"),
+			Password: os.Getenv("FREEIPA_PASSWORD"),
+		}
+		c, _ := client.NewClient(cfg)
+		if c != nil {
+			c.Login()
+			ctx := context.Background()
+			c.Call(ctx, "netgroup_del", []string{"acc-ng-members"}, nil, nil)
+			c.Call(ctx, "host_del", []string{"acc-ng-host.test.local"}, nil, nil)
+			c.Call(ctx, "user_del", []string{"acc_ng_user"}, nil, nil)
+		}
+	}
+	cleanupOrphan()
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
