@@ -1110,3 +1110,381 @@ data "freeipa_dns_zone" "test" {
 		},
 	})
 }
+
+// ─────────────────────────────────────────────────────────────
+// Extended coverage: Update + Import tests for resources missing them
+// ─────────────────────────────────────────────────────────────
+
+func TestAcc_HostGroup_Update(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hostgroup" "test" {
+  cn          = "acc-hg-update"
+  description = "Original"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.test", "description", "Original"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hostgroup" "test" {
+  cn          = "acc-hg-update"
+  description = "Updated"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.test", "description", "Updated"),
+			},
+		},
+	})
+}
+
+func TestAcc_HbacSvc_Update(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbac_service" "test" {
+  name        = "acc-svc-update"
+  description = "Original"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbac_service.test", "description", "Original"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbac_service" "test" {
+  name        = "acc-svc-update"
+  description = "Updated"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbac_service.test", "description", "Updated"),
+			},
+		},
+	})
+}
+
+func TestAcc_HbacRule_Import(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbacrule" "test" {
+  name             = "acc-hbac-import"
+  host_category    = "all"
+  service_category = "all"
+}`,
+			},
+			{ResourceName: "freeipa_hbacrule.test", ImportState: true, ImportStateVerify: true},
+		},
+	})
+}
+
+func TestAcc_SudoCommand_Update(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "test" {
+  command     = "/usr/bin/acc-upd-cmd"
+  description = "Original"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_command.test", "description", "Original"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "test" {
+  command     = "/usr/bin/acc-upd-cmd"
+  description = "Updated"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_command.test", "description", "Updated"),
+			},
+		},
+	})
+}
+
+func TestAcc_SudoCommandGroup_Update(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command_group" "test" {
+  name        = "acc-cmdgrp-update"
+  description = "Original"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_command_group.test", "description", "Original"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command_group" "test" {
+  name        = "acc-cmdgrp-update"
+  description = "Updated"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_command_group.test", "description", "Updated"),
+			},
+		},
+	})
+}
+
+func TestAcc_Role_Import(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_role" "test" {
+  name = "acc-role-import"
+}`,
+			},
+			{ResourceName: "freeipa_role.test", ImportState: true, ImportStateVerify: true},
+		},
+	})
+}
+
+func TestAcc_PwPolicy_Import(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "ppi" {
+  name = "acc-pwpolicy-import"
+}
+resource "freeipa_password_policy" "test" {
+  name      = freeipa_group.ppi.name
+  minlength = 10
+  priority  = 5
+}`,
+			},
+			{
+				ResourceName:      "freeipa_password_policy.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"minlife", "maxlife", "history", "minclasses", "maxfail", "failinterval", "lockouttime"},
+			},
+		},
+	})
+}
+
+func TestAcc_Group_Nonposix_External(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "test" {
+  name        = "acc-group-nonposix"
+  description = "Non-POSIX group"
+  nonposix    = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "nonposix", "true"),
+			},
+		},
+	})
+}
+
+func TestAcc_User_Staged(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "test" {
+  username   = "acc-staged"
+  first_name = "Staged"
+  last_name  = "User"
+  staged     = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_user.test", "staged", "true"),
+			},
+		},
+	})
+}
+
+func TestAcc_Host_SSHKeys(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "test" {
+  fqdn            = "acc-host-ssh.test.local"
+  description     = "Host with SSH keys"
+  ssh_public_keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPeM44/8ZkS2r6rU0Xj4W3g9t0C+7XU7k9j0N0Xj4W3g host@test"
+  ]
+  ip_address      = "10.5.0.50"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_host.test", "ssh_public_keys.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_host.test", "ip_address", "10.5.0.50"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_SudoRule_Options(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_rule" "test" {
+  name          = "acc-sr-options"
+  description   = "Sudo rule with options"
+  user_category = "all"
+  host_category = "all"
+  order         = 50
+  options       = ["!authenticate"]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "order", "50"),
+					resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "options.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_SudoRule_DenyCommands(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "dsc" {
+  command = "/usr/bin/acc-deny-cmd"
+}
+resource "freeipa_sudo_rule" "test" {
+  name           = "acc-sr-deny"
+  description    = "Sudo rule with deny"
+  user_category  = "all"
+  host_category  = "all"
+  deny_commands  = [freeipa_sudo_command.dsc.command]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "deny_commands.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_SudoRule_Runas(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "sru" {
+  username   = "acc_sru_user"
+  first_name = "SRU"
+  last_name  = "User"
+}
+resource "freeipa_group" "srg" {
+  name = "acc-sru-group"
+}
+resource "freeipa_sudo_rule" "test" {
+  name                = "acc-sr-runas"
+  description         = "Sudo rule with run-as"
+  user_category       = "all"
+  host_category       = "all"
+  runas_user_category = "all"
+  runas_users         = [freeipa_user.sru.username]
+  runas_groups        = [freeipa_group.srg.name]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "runas_user_category", "all"),
+					resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "runas_users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "runas_groups.#", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_HbacRule_UserCategory(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbacrule" "test" {
+  name             = "acc-hbac-usercat"
+  description      = "HBAC with user category"
+  user_category    = "all"
+  host_category    = "all"
+  service_category = "all"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbacrule.test", "user_category", "all"),
+			},
+		},
+	})
+}
+
+func TestAcc_PwPolicy_Lockout(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "plg" {
+  name = "acc-plock-group"
+}
+resource "freeipa_password_policy" "test" {
+  name         = freeipa_group.plg.name
+  maxlife      = 60
+  minlength    = 8
+  priority     = 5
+  maxfail      = 3
+  lockouttime  = 600
+  failinterval = 60
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_password_policy.test", "maxfail", "3"),
+					resource.TestCheckResourceAttr("freeipa_password_policy.test", "lockouttime", "600"),
+					resource.TestCheckResourceAttr("freeipa_password_policy.test", "failinterval", "60"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_Group_MemberManagers(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "gmm" {
+  username   = "acc_gmm_user"
+  first_name = "GMM"
+  last_name  = "User"
+}
+resource "freeipa_group" "test" {
+  name            = "acc-group-mgr"
+  description     = "Group with member managers"
+  member_managers = [freeipa_user.gmm.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "member_managers.#", "1"),
+			},
+		},
+	})
+}

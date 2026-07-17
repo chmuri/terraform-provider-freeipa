@@ -295,7 +295,7 @@ func isNotFoundError(err error) bool {
 		return false
 	}
 	if rpcErr, ok := err.(*client.RPCError); ok {
-		return rpcErr.Code == 4002 // NotFound
+		return rpcErr.Code == 4001 // NotFound
 	}
 	return strings.Contains(strings.ToLower(err.Error()), "not found")
 }

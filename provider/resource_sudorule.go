@@ -182,8 +182,8 @@ type FreeIPASudoRuleResult struct {
 		Usercategory       []string      `json:"usercategory"`
 		Hostcategory       []string      `json:"hostcategory"`
 		Cmdcategory        []string      `json:"cmdcategory"`
-		Runasusercategory  []string      `json:"runasusercategory"`
-		Runasgroupcategory []string      `json:"runasgroupcategory"`
+		Runasusercategory     []string      `json:"ipasudorunasusercategory"`
+		Runasgroupcategory    []string      `json:"ipasudorunasgroupcategory"`
 		Sudoorder          []interface{} `json:"sudoorder"`
 		Ipasudoorder       []interface{} `json:"ipasudoorder"`
 		Ipaenabledflag     []bool        `json:"ipaenabledflag"`
@@ -223,10 +223,10 @@ func (r *SudoRuleResource) Create(ctx context.Context, req resource.CreateReques
 		opts["cmdcategory"] = plan.CommandCategory.ValueString()
 	}
 	if !plan.RunAsUserCategory.IsNull() && !plan.RunAsUserCategory.IsUnknown() {
-		opts["runasusercategory"] = plan.RunAsUserCategory.ValueString()
+		opts["ipasudorunasusercategory"] = plan.RunAsUserCategory.ValueString()
 	}
 	if !plan.RunAsGroupCategory.IsNull() && !plan.RunAsGroupCategory.IsUnknown() {
-		opts["runasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
+		opts["ipasudorunasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
 	}
 	if !plan.Order.IsNull() && !plan.Order.IsUnknown() {
 		opts["sudoorder"] = plan.Order.ValueInt64()
@@ -615,16 +615,16 @@ func (r *SudoRuleResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	if !plan.RunAsUserCategory.Equal(state.RunAsUserCategory) {
 		if plan.RunAsUserCategory.IsNull() {
-			modOpts["runasusercategory"] = ""
+			modOpts["ipasudorunasusercategory"] = ""
 		} else {
-			modOpts["runasusercategory"] = plan.RunAsUserCategory.ValueString()
+			modOpts["ipasudorunasusercategory"] = plan.RunAsUserCategory.ValueString()
 		}
 	}
 	if !plan.RunAsGroupCategory.Equal(state.RunAsGroupCategory) {
 		if plan.RunAsGroupCategory.IsNull() {
-			modOpts["runasgroupcategory"] = ""
+			modOpts["ipasudorunasgroupcategory"] = ""
 		} else {
-			modOpts["runasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
+			modOpts["ipasudorunasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
 		}
 	}
 	if !plan.Order.Equal(state.Order) {
