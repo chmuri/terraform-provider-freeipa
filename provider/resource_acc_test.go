@@ -995,3 +995,69 @@ data "freeipa_host" "test" {
 		},
 	})
 }
+
+func TestAcc_DataSource_HostGroup(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hostgroup" "dshg" {
+  cn = "acc-ds-hostgroup"
+}
+data "freeipa_hostgroup" "test" {
+  name = freeipa_hostgroup.dshg.cn
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.freeipa_hostgroup.test", "name", "acc-ds-hostgroup"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_DataSource_HbacRule(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbacrule" "dshb" {
+  name             = "acc-ds-hbacrule"
+  host_category    = "all"
+  service_category = "all"
+}
+data "freeipa_hbacrule" "test" {
+  name = freeipa_hbacrule.dshb.name
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.freeipa_hbacrule.test", "name", "acc-ds-hbacrule"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_DataSource_DnsZone(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "dsdz" {
+  zone_name                = "acc-ds.test.local"
+  authoritative_nameserver = "ipa.test.local."
+}
+data "freeipa_dns_zone" "test" {
+  zone_name = freeipa_dns_zone.dsdz.zone_name
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.freeipa_dns_zone.test", "zone_name", "acc-ds.test.local"),
+				),
+			},
+		},
+	})
+}
