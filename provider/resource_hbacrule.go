@@ -17,7 +17,7 @@ type HbacRuleResource struct {
 	client *client.Client
 }
 
-type hbacResourceModel struct {
+type hbacRuleResourceModel struct {
 	ID              types.String `tfsdk:"id"`
 	Name            types.String `tfsdk:"name"`
 	Description     types.String `tfsdk:"description"`
@@ -134,7 +134,7 @@ type FreeIPAHbacRuleResult struct {
 }
 
 func (r *HbacRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan hbacResourceModel
+	var plan hbacRuleResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -218,7 +218,7 @@ func (r *HbacRuleResource) Create(ctx context.Context, req resource.CreateReques
 		}
 		if len(services) > 0 {
 			err = r.client.Call(ctx, "hbacrule_add_service", []string{plan.Name.ValueString()}, map[string]interface{}{
-				"hbacservice": services,
+				"hbacsvc": services,
 			}, nil)
 			if err != nil {
 				resp.Diagnostics.AddError("Failed to associate services with HBAC rule", err.Error())
@@ -234,7 +234,7 @@ func (r *HbacRuleResource) Create(ctx context.Context, req resource.CreateReques
 }
 
 func (r *HbacRuleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state hbacResourceModel
+	var state hbacRuleResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -323,7 +323,7 @@ func (r *HbacRuleResource) Read(ctx context.Context, req resource.ReadRequest, r
 }
 
 func (r *HbacRuleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state hbacResourceModel
+	var plan, state hbacRuleResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
@@ -363,7 +363,7 @@ func (r *HbacRuleResource) Update(ctx context.Context, req resource.UpdateReques
 
 	if len(modOpts) > 0 {
 		err := r.client.Call(ctx, "hbacrule_mod", []string{plan.ID.ValueString()}, modOpts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA HBAC rule attributes", err.Error())
 			return
 		}
@@ -478,7 +478,7 @@ func (r *HbacRuleResource) Update(ctx context.Context, req resource.UpdateReques
 
 	if len(servicesAdded) > 0 {
 		err := r.client.Call(ctx, "hbacrule_add_service", []string{plan.ID.ValueString()}, map[string]interface{}{
-			"hbacservice": servicesAdded,
+			"hbacsvc": servicesAdded,
 		}, nil)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to add service associations to HBAC rule", err.Error())
@@ -487,7 +487,7 @@ func (r *HbacRuleResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	if len(servicesRemoved) > 0 {
 		err := r.client.Call(ctx, "hbacrule_remove_service", []string{plan.ID.ValueString()}, map[string]interface{}{
-			"hbacservice": servicesRemoved,
+			"hbacsvc": servicesRemoved,
 		}, nil)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to remove service associations from HBAC rule", err.Error())
@@ -500,7 +500,7 @@ func (r *HbacRuleResource) Update(ctx context.Context, req resource.UpdateReques
 }
 
 func (r *HbacRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state hbacResourceModel
+	var state hbacRuleResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return

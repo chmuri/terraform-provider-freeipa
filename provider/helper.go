@@ -124,3 +124,20 @@ func contains(slice []string, val string) bool {
 	}
 	return false
 }
+
+// difference returns elements in slice1 that are not in slice2
+func difference(slice1 []string, slice2 []string) []string {
+	var diff []string
+	m := make(map[string]bool)
+
+	for _, val := range slice2 {
+		m[val] = true
+	}
+
+	for _, val := range slice1 {
+		if !m[val] {
+			diff = append(diff, val)
+		}
+	}
+	return diff
+}

@@ -88,7 +88,7 @@ func (r *HostGroupResource) Configure(ctx context.Context, req resource.Configur
 	r.client = c
 }
 
-type hostGroupResourceResult struct {
+type FreeIPAHostGroupResult struct {
 	Result struct {
 		Cn                 []string `json:"cn"`
 		Description        []string `json:"description"`
@@ -179,7 +179,7 @@ func (r *HostGroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	var result hostGroupResourceResult
+	var result FreeIPAHostGroupResult
 	err := r.client.Call(ctx, "hostgroup_show", []string{state.ID.ValueString()}, map[string]interface{}{"all": true}, &result)
 	if err != nil {
 		if isNotFoundError(err) {
@@ -322,7 +322,7 @@ func (r *HostGroupResource) Update(ctx context.Context, req resource.UpdateReque
 
 	if len(mgrsAdded) > 0 || len(mgrsRemoved) > 0 {
 		// Fetch current manager groups/users to know how to remove them
-		var current hostGroupResourceResult
+		var current FreeIPAHostGroupResult
 		err := r.client.Call(ctx, "hostgroup_show", []string{plan.ID.ValueString()}, map[string]interface{}{"all": true}, &current)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to show host group managers for update", err.Error())

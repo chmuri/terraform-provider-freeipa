@@ -474,6 +474,7 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	if isStaged {
 		plan.Staged = types.BoolValue(true)
+		plan.Enabled = types.BoolNull()
 	} else {
 		plan.Staged = types.BoolValue(false)
 		// Handle enabled/disabled for active users
@@ -492,6 +493,12 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 	if !plan.RandomPassword.IsNull() && !plan.RandomPassword.IsUnknown() && plan.RandomPassword.ValueBool() {
 		if result.Result.Randompassword != "" {
 			plan.Password = types.StringValue(result.Result.Randompassword)
+		}
+	} else {
+		// If no password was specified and random_password is not set,
+		// ensure password is known (null) after create
+		if plan.Password.IsNull() || plan.Password.IsUnknown() {
+			plan.Password = types.StringNull()
 		}
 	}
 

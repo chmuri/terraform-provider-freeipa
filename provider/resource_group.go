@@ -426,18 +426,4 @@ func (r *GroupResource) ImportState(ctx context.Context, req resource.ImportStat
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func difference(slice1 []string, slice2 []string) []string {
-	var diff []string
-	m := make(map[string]bool)
 
-	for _, val := range slice2 {
-		m[val] = true
-	}
-
-	for _, val := range slice1 {
-		if !m[val] {
-			diff = append(diff, val)
-		}
-	}
-	return diff
-}

@@ -126,23 +126,26 @@ func (r *SudoCommandResource) Read(ctx context.Context, req resource.ReadRequest
 }
 
 func (r *SudoCommandResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan sudoCommandResourceModel
+	var plan, state sudoCommandResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	opts := map[string]interface{}{}
-	if plan.Description.IsNull() {
-		opts["description"] = ""
-	} else {
-		opts["description"] = plan.Description.ValueString()
-	}
+	if !plan.Description.Equal(state.Description) {
+		opts := map[string]interface{}{}
+		if plan.Description.IsNull() {
+			opts["description"] = ""
+		} else {
+			opts["description"] = plan.Description.ValueString()
+		}
 
-	err := r.client.Call(ctx, "sudocmd_mod", []string{plan.Command.ValueString()}, opts, nil)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to update FreeIPA sudo command", err.Error())
-		return
+		err := r.client.Call(ctx, "sudocmd_mod", []string{plan.Command.ValueString()}, opts, nil)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to update FreeIPA sudo command", err.Error())
+			return
+		}
 	}
 
 	plan.ID = plan.Command

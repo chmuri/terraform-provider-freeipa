@@ -383,3 +383,99 @@ func TestDnsZoneDataSourceSchema(t *testing.T) {
 		}
 	}
 }
+
+func TestSudoRuleDataSourceSchema(t *testing.T) {
+	d := NewSudoRuleDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "enabled"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected sudo_rule data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestSudoCommandDataSourceSchema(t *testing.T) {
+	d := NewSudoCommandDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "command", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected sudo_command data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestSudoCommandGroupDataSourceSchema(t *testing.T) {
+	d := NewSudoCommandGroupDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "commands"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected sudo_command_group data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestRoleDataSourceSchema(t *testing.T) {
+	d := NewRoleDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "privileges"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected role data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestPrivilegeDataSourceSchema(t *testing.T) {
+	d := NewPrivilegeDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "permissions"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected privilege data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestNetgroupDataSourceSchema(t *testing.T) {
+	d := NewNetgroupDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected netgroup data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestPwPolicyDataSourceSchema(t *testing.T) {
+	d := NewPwPolicyDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "minlength", "maxlife"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected pwpolicy data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestVaultDataSourceSchema(t *testing.T) {
+	d := NewVaultDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description", "type"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected vault data source schema to contain attribute: %s", attr)
+		}
+	}
+}

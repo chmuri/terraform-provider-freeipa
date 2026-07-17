@@ -164,6 +164,10 @@ func (r *DnsRecordResource) Create(ctx context.Context, req resource.CreateReque
 		plan.RecordValue.ValueString(),
 	))
 
+	if plan.TTL.IsUnknown() {
+		plan.TTL = types.Int64Null()
+	}
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }

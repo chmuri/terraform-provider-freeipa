@@ -627,9 +627,9 @@ func (r *SudoRuleResource) Update(ctx context.Context, req resource.UpdateReques
 			modOpts["ipasudorunasgroupcategory"] = plan.RunAsGroupCategory.ValueString()
 		}
 	}
-	if !plan.Order.Equal(state.Order) {
+	if !plan.Order.Equal(state.Order) && !plan.Order.IsUnknown() {
 		if plan.Order.IsNull() {
-			modOpts["sudoorder"] = ""
+			modOpts["sudoorder"] = nil
 		} else {
 			modOpts["sudoorder"] = plan.Order.ValueInt64()
 		}

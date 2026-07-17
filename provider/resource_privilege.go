@@ -183,7 +183,7 @@ func (r *PrivilegeResource) Update(ctx context.Context, req resource.UpdateReque
 			opts["description"] = plan.Description.ValueString()
 		}
 		err := r.client.Call(ctx, "privilege_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA privilege description", err.Error())
 			return
 		}

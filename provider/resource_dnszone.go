@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -286,6 +287,13 @@ func (r *DnsZoneResource) Create(ctx context.Context, req resource.CreateRequest
 
 	plan.ID = plan.ZoneName
 
+	if plan.AuthoritativeNameserver.IsUnknown() {
+		plan.AuthoritativeNameserver = types.StringNull()
+	}
+	if plan.AdminEmail.IsUnknown() {
+		plan.AdminEmail = types.StringNull()
+	}
+
 	if plan.Refresh.IsUnknown() {
 		plan.Refresh = types.Int64Null()
 	}
@@ -350,7 +358,8 @@ func (r *DnsZoneResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	res := result.Result
-	state.ZoneName = types.StringValue(parseStringVal(res.IdnsName))
+	zoneName := parseStringVal(res.IdnsName)
+	state.ZoneName = types.StringValue(strings.TrimSuffix(zoneName, "."))
 	state.ID = state.ZoneName
 
 	if res.IdnssoaMName != nil {
@@ -365,13 +374,41 @@ func (r *DnsZoneResource) Read(ctx context.Context, req resource.ReadRequest, re
 		state.AdminEmail = types.StringNull()
 	}
 
-	state.Refresh = types.Int64Value(parseIntVal(res.IdnssoaRefresh))
-	state.Retry = types.Int64Value(parseIntVal(res.IdnssoaRetry))
-	state.Expire = types.Int64Value(parseIntVal(res.IdnssoaExpire))
-	state.Minimum = types.Int64Value(parseIntVal(res.IdnssoaMinTTL))
-	state.TTL = types.Int64Value(parseIntVal(res.DnsTTL))
-	state.DefaultTTL = types.Int64Value(parseIntVal(res.IdnsDefaultTTL))
-	state.DynamicUpdate = types.BoolValue(parseBoolVal(res.IdnsDynamicUpdate))
+	if res.IdnssoaRefresh != nil {
+		state.Refresh = types.Int64Value(parseIntVal(res.IdnssoaRefresh))
+	} else {
+		state.Refresh = types.Int64Null()
+	}
+	if res.IdnssoaRetry != nil {
+		state.Retry = types.Int64Value(parseIntVal(res.IdnssoaRetry))
+	} else {
+		state.Retry = types.Int64Null()
+	}
+	if res.IdnssoaExpire != nil {
+		state.Expire = types.Int64Value(parseIntVal(res.IdnssoaExpire))
+	} else {
+		state.Expire = types.Int64Null()
+	}
+	if res.IdnssoaMinTTL != nil {
+		state.Minimum = types.Int64Value(parseIntVal(res.IdnssoaMinTTL))
+	} else {
+		state.Minimum = types.Int64Null()
+	}
+	if res.DnsTTL != nil {
+		state.TTL = types.Int64Value(parseIntVal(res.DnsTTL))
+	} else {
+		state.TTL = types.Int64Null()
+	}
+	if res.IdnsDefaultTTL != nil {
+		state.DefaultTTL = types.Int64Value(parseIntVal(res.IdnsDefaultTTL))
+	} else {
+		state.DefaultTTL = types.Int64Null()
+	}
+	if res.IdnsDynamicUpdate != nil {
+		state.DynamicUpdate = types.BoolValue(parseBoolVal(res.IdnsDynamicUpdate))
+	} else {
+		state.DynamicUpdate = types.BoolNull()
+	}
 
 	if res.IdnsAllowQuery != nil {
 		state.AllowQuery = types.StringValue(parseStringVal(res.IdnsAllowQuery))
@@ -431,51 +468,51 @@ func (r *DnsZoneResource) Update(ctx context.Context, req resource.UpdateRequest
 			opts["idnssoarname"] = plan.AdminEmail.ValueString()
 		}
 	}
-	if !plan.Refresh.Equal(state.Refresh) {
+	if !plan.Refresh.Equal(state.Refresh) && !plan.Refresh.IsUnknown() {
 		if plan.Refresh.IsNull() {
-			opts["idnssoarefresh"] = ""
+			opts["idnssoarefresh"] = nil
 		} else {
 			opts["idnssoarefresh"] = plan.Refresh.ValueInt64()
 		}
 	}
-	if !plan.Retry.Equal(state.Retry) {
+	if !plan.Retry.Equal(state.Retry) && !plan.Retry.IsUnknown() {
 		if plan.Retry.IsNull() {
-			opts["idnssoaretry"] = ""
+			opts["idnssoaretry"] = nil
 		} else {
 			opts["idnssoaretry"] = plan.Retry.ValueInt64()
 		}
 	}
-	if !plan.Expire.Equal(state.Expire) {
+	if !plan.Expire.Equal(state.Expire) && !plan.Expire.IsUnknown() {
 		if plan.Expire.IsNull() {
-			opts["idnssoaexpire"] = ""
+			opts["idnssoaexpire"] = nil
 		} else {
 			opts["idnssoaexpire"] = plan.Expire.ValueInt64()
 		}
 	}
-	if !plan.Minimum.Equal(state.Minimum) {
+	if !plan.Minimum.Equal(state.Minimum) && !plan.Minimum.IsUnknown() {
 		if plan.Minimum.IsNull() {
-			opts["idnssoaminttl"] = ""
+			opts["idnssoaminttl"] = nil
 		} else {
 			opts["idnssoaminttl"] = plan.Minimum.ValueInt64()
 		}
 	}
-	if !plan.TTL.Equal(state.TTL) {
+	if !plan.TTL.Equal(state.TTL) && !plan.TTL.IsUnknown() {
 		if plan.TTL.IsNull() {
-			opts["dnsttl"] = ""
+			opts["dnsttl"] = nil
 		} else {
 			opts["dnsttl"] = plan.TTL.ValueInt64()
 		}
 	}
-	if !plan.DefaultTTL.Equal(state.DefaultTTL) {
+	if !plan.DefaultTTL.Equal(state.DefaultTTL) && !plan.DefaultTTL.IsUnknown() {
 		if plan.DefaultTTL.IsNull() {
-			opts["idnsdefaultttl"] = ""
+			opts["idnsdefaultttl"] = nil
 		} else {
 			opts["idnsdefaultttl"] = plan.DefaultTTL.ValueInt64()
 		}
 	}
-	if !plan.DynamicUpdate.Equal(state.DynamicUpdate) {
+	if !plan.DynamicUpdate.Equal(state.DynamicUpdate) && !plan.DynamicUpdate.IsUnknown() {
 		if plan.DynamicUpdate.IsNull() {
-			opts["idnsdynamicupdate"] = ""
+			opts["idnsdynamicupdate"] = nil
 		} else {
 			opts["idnsdynamicupdate"] = plan.DynamicUpdate.ValueBool()
 		}
@@ -520,7 +557,7 @@ func (r *DnsZoneResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "dnszone_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA DNS zone", err.Error())
 			return
 		}

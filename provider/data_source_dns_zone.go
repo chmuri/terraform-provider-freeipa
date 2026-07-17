@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/chmuri/terraform-provider-freeipa/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -148,7 +149,8 @@ func (d *DnsZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	res := result.Result
-	state.ZoneName = types.StringValue(parseStringVal(res.IdnsName))
+	zoneName := strings.TrimSuffix(parseStringVal(res.IdnsName), ".")
+	state.ZoneName = types.StringValue(zoneName)
 	state.ID = state.ZoneName
 
 	if res.IdnssoaMName != nil {
@@ -163,13 +165,41 @@ func (d *DnsZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		state.AdminEmail = types.StringNull()
 	}
 
-	state.Refresh = types.Int64Value(parseIntVal(res.IdnssoaRefresh))
-	state.Retry = types.Int64Value(parseIntVal(res.IdnssoaRetry))
-	state.Expire = types.Int64Value(parseIntVal(res.IdnssoaExpire))
-	state.Minimum = types.Int64Value(parseIntVal(res.IdnssoaMinTTL))
-	state.TTL = types.Int64Value(parseIntVal(res.DnsTTL))
-	state.DefaultTTL = types.Int64Value(parseIntVal(res.IdnsDefaultTTL))
-	state.DynamicUpdate = types.BoolValue(parseBoolVal(res.IdnsDynamicUpdate))
+	if res.IdnssoaRefresh != nil {
+		state.Refresh = types.Int64Value(parseIntVal(res.IdnssoaRefresh))
+	} else {
+		state.Refresh = types.Int64Null()
+	}
+	if res.IdnssoaRetry != nil {
+		state.Retry = types.Int64Value(parseIntVal(res.IdnssoaRetry))
+	} else {
+		state.Retry = types.Int64Null()
+	}
+	if res.IdnssoaExpire != nil {
+		state.Expire = types.Int64Value(parseIntVal(res.IdnssoaExpire))
+	} else {
+		state.Expire = types.Int64Null()
+	}
+	if res.IdnssoaMinTTL != nil {
+		state.Minimum = types.Int64Value(parseIntVal(res.IdnssoaMinTTL))
+	} else {
+		state.Minimum = types.Int64Null()
+	}
+	if res.DnsTTL != nil {
+		state.TTL = types.Int64Value(parseIntVal(res.DnsTTL))
+	} else {
+		state.TTL = types.Int64Null()
+	}
+	if res.IdnsDefaultTTL != nil {
+		state.DefaultTTL = types.Int64Value(parseIntVal(res.IdnsDefaultTTL))
+	} else {
+		state.DefaultTTL = types.Int64Null()
+	}
+	if res.IdnsDynamicUpdate != nil {
+		state.DynamicUpdate = types.BoolValue(parseBoolVal(res.IdnsDynamicUpdate))
+	} else {
+		state.DynamicUpdate = types.BoolNull()
+	}
 
 	if res.IdnsAllowQuery != nil {
 		state.AllowQuery = types.StringValue(parseStringVal(res.IdnsAllowQuery))
@@ -183,7 +213,11 @@ func (d *DnsZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		state.AllowTransfer = types.StringNull()
 	}
 
-	state.AllowSyncPtr = types.BoolValue(parseBoolVal(res.IdnsAllowSyncPtr))
+	if res.IdnsAllowSyncPtr != nil {
+		state.AllowSyncPtr = types.BoolValue(parseBoolVal(res.IdnsAllowSyncPtr))
+	} else {
+		state.AllowSyncPtr = types.BoolNull()
+	}
 
 	fwSlice := parseStringSlice(res.IdnsForwarders)
 	if len(fwSlice) > 0 {

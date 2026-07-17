@@ -339,7 +339,7 @@ func (r *NetgroupResource) Update(ctx context.Context, req resource.UpdateReques
 
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "netgroup_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA netgroup properties", err.Error())
 			return
 		}

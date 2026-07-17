@@ -159,7 +159,7 @@ func (r *PwPolicyResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	if !plan.Priority.IsNull() && !plan.Priority.IsUnknown() {
 		opts["cospriority"] = plan.Priority.ValueInt64()
-	} else {
+	} else if plan.Name.ValueString() != "global" {
 		opts["cospriority"] = int64(1)
 	}
 	if !plan.MinClasses.IsNull() && !plan.MinClasses.IsUnknown() {
@@ -178,7 +178,7 @@ func (r *PwPolicyResource) Create(ctx context.Context, req resource.CreateReques
 	if plan.Name.ValueString() == "global" {
 		// Global policy always exists, we modify it
 		err := r.client.Call(ctx, "pwpolicy_mod", getPwPolicyArgs("global"), opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update global password policy", err.Error())
 			return
 		}
@@ -339,7 +339,7 @@ func (r *PwPolicyResource) Update(ctx context.Context, req resource.UpdateReques
 
 	if len(opts) > 0 {
 		err := r.client.Call(ctx, "pwpolicy_mod", getPwPolicyArgs(plan.ID.ValueString()), opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA password policy", err.Error())
 			return
 		}

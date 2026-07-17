@@ -315,7 +315,7 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			opts["description"] = plan.Description.ValueString()
 		}
 		err := r.client.Call(ctx, "role_mod", []string{plan.ID.ValueString()}, opts, nil)
-		if err != nil {
+		if err != nil && !isEmptyModlistError(err) {
 			resp.Diagnostics.AddError("Failed to update FreeIPA role description", err.Error())
 			return
 		}

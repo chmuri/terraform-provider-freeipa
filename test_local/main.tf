@@ -75,10 +75,10 @@ resource "freeipa_sudo_command_group" "test_sudo_command_group" {
 }
 
 resource "freeipa_sudo_rule" "test_sudo_rule" {
-  name               = "test-sudo-rule"
-  description        = "Test Sudo Rule"
-  user_category      = "all"
-  host_category      = "all"
+  name                 = "test-sudo-rule"
+  description          = "Test Sudo Rule"
+  user_category        = "all"
+  host_category        = "all"
   allow_command_groups = [freeipa_sudo_command_group.test_sudo_command_group.name]
 }
 

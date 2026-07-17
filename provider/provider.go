@@ -156,5 +156,13 @@ func (p *freeipaProvider) DataSources(ctx context.Context) []func() datasource.D
 		NewHostGroupDataSource,
 		NewHbacRuleDataSource,
 		NewDnsZoneDataSource,
+		NewSudoRuleDataSource,
+		NewSudoCommandDataSource,
+		NewSudoCommandGroupDataSource,
+		NewRoleDataSource,
+		NewPrivilegeDataSource,
+		NewNetgroupDataSource,
+		NewPwPolicyDataSource,
+		NewVaultDataSource,
 	}
 }
