@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -96,6 +97,7 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 			},
 			"email": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				MarkdownDescription: "Email address.",
 			},
 			"password": schema.StringAttribute{
@@ -117,41 +119,65 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Full name.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"displayname": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Display name.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"initials": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Initials.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"homedir": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Home directory.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"gecos": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "GECOS.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"shell": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Login shell.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"uid": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "User ID Number.",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"gid": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Group ID Number.",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"street": schema.StringAttribute{
 				Optional:            true,
@@ -474,6 +500,13 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 			plan.Cn = types.StringValue(result.Result.Cn[0])
 		} else {
 			plan.Cn = types.StringNull()
+		}
+	}
+	if plan.Email.IsNull() || plan.Email.IsUnknown() {
+		if len(result.Result.Mail) > 0 {
+			plan.Email = types.StringValue(result.Result.Mail[0])
+		} else {
+			plan.Email = types.StringNull()
 		}
 	}
 	if plan.FullName.IsNull() || plan.FullName.IsUnknown() {

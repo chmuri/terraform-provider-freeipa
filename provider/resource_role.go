@@ -104,7 +104,7 @@ type FreeIPARoleResult struct {
 	Result struct {
 		Cn              interface{} `json:"cn"`
 		Description     interface{} `json:"description"`
-		MemberPrivilege interface{} `json:"member_privilege"`
+		MemberPrivilege interface{} `json:"memberof_privilege"`
 		MemberUser      interface{} `json:"member_user"`
 		MemberGroup     interface{} `json:"member_group"`
 		MemberHost      interface{} `json:"member_host"`

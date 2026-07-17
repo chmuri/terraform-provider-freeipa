@@ -169,7 +169,7 @@ func (r *PwPolicyResource) Create(ctx context.Context, req resource.CreateReques
 		opts["krbpwdmaxfailure"] = plan.MaxFail.ValueInt64()
 	}
 	if !plan.FailInterval.IsNull() && !plan.FailInterval.IsUnknown() {
-		opts["krbpwdfailinterval"] = plan.FailInterval.ValueInt64()
+		opts["krbpwdfailurecountinterval"] = plan.FailInterval.ValueInt64()
 	}
 	if !plan.LockoutTime.IsNull() && !plan.LockoutTime.IsUnknown() {
 		opts["krbpwdlockoutduration"] = plan.LockoutTime.ValueInt64()
@@ -257,7 +257,7 @@ func (r *PwPolicyResource) Read(ctx context.Context, req resource.ReadRequest, r
 	state.Priority = types.Int64Value(parsePwPolicyVal(res, "priority", "cospriority"))
 	state.MinClasses = types.Int64Value(parsePwPolicyVal(res, "minclasses", "krbpwdmindiffchars"))
 	state.MaxFail = types.Int64Value(parsePwPolicyVal(res, "maxfail", "krbpwdmaxfailure"))
-	state.FailInterval = types.Int64Value(parsePwPolicyVal(res, "failinterval", "krbpwdfailinterval"))
+	state.FailInterval = types.Int64Value(parsePwPolicyVal(res, "failinterval", "krbpwdfailurecountinterval"))
 	state.LockoutTime = types.Int64Value(parsePwPolicyVal(res, "lockouttime", "krbpwdlockoutduration"))
 
 	diags = resp.State.Set(ctx, &state)
@@ -322,14 +322,14 @@ func (r *PwPolicyResource) Update(ctx context.Context, req resource.UpdateReques
 			opts["krbpwdmaxfailure"] = plan.MaxFail.ValueInt64()
 		}
 	}
-	if !plan.FailInterval.Equal(state.FailInterval) {
+	if !plan.FailInterval.Equal(state.FailInterval) && !plan.FailInterval.IsUnknown() {
 		if plan.FailInterval.IsNull() {
-			opts["krbpwdfailinterval"] = ""
+			opts["krbpwdfailurecountinterval"] = ""
 		} else {
-			opts["krbpwdfailinterval"] = plan.FailInterval.ValueInt64()
+			opts["krbpwdfailurecountinterval"] = plan.FailInterval.ValueInt64()
 		}
 	}
-	if !plan.LockoutTime.Equal(state.LockoutTime) {
+	if !plan.LockoutTime.Equal(state.LockoutTime) && !plan.LockoutTime.IsUnknown() {
 		if plan.LockoutTime.IsNull() {
 			opts["krbpwdlockoutduration"] = ""
 		} else {
@@ -343,6 +343,28 @@ func (r *PwPolicyResource) Update(ctx context.Context, req resource.UpdateReques
 			resp.Diagnostics.AddError("Failed to update FreeIPA password policy", err.Error())
 			return
 		}
+	}
+
+	if plan.MinLife.IsUnknown() {
+		plan.MinLife = state.MinLife
+	}
+	if plan.History.IsUnknown() {
+		plan.History = state.History
+	}
+	if plan.Priority.IsUnknown() {
+		plan.Priority = state.Priority
+	}
+	if plan.MinClasses.IsUnknown() {
+		plan.MinClasses = state.MinClasses
+	}
+	if plan.MaxFail.IsUnknown() {
+		plan.MaxFail = state.MaxFail
+	}
+	if plan.FailInterval.IsUnknown() {
+		plan.FailInterval = state.FailInterval
+	}
+	if plan.LockoutTime.IsUnknown() {
+		plan.LockoutTime = state.LockoutTime
 	}
 
 	diags := resp.State.Set(ctx, plan)
