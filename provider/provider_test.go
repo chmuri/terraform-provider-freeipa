@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
@@ -307,6 +308,78 @@ func TestPwPolicyResourceSchema(t *testing.T) {
 	for _, attr := range []string{"id", "name", "minlength", "maxlife", "minlife", "history", "priority"} {
 		if _, ok := resp.Schema.Attributes[attr]; !ok {
 			t.Errorf("expected pwpolicy schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestUserDataSourceSchema(t *testing.T) {
+	d := NewUserDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "username", "first_name", "last_name", "email"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected user data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestGroupDataSourceSchema(t *testing.T) {
+	d := NewGroupDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected group data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestHostDataSourceSchema(t *testing.T) {
+	d := NewHostDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "fqdn", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected host data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestHostGroupDataSourceSchema(t *testing.T) {
+	d := NewHostGroupDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected hostgroup data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestHbacRuleDataSourceSchema(t *testing.T) {
+	d := NewHbacRuleDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "name", "description"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected hbacrule data source schema to contain attribute: %s", attr)
+		}
+	}
+}
+
+func TestDnsZoneDataSourceSchema(t *testing.T) {
+	d := NewDnsZoneDataSource()
+	ctx := context.Background()
+	resp := &datasource.SchemaResponse{}
+	d.Schema(ctx, datasource.SchemaRequest{}, resp)
+	for _, attr := range []string{"id", "zone_name"} {
+		if _, ok := resp.Schema.Attributes[attr]; !ok {
+			t.Errorf("expected dns_zone data source schema to contain attribute: %s", attr)
 		}
 	}
 }
