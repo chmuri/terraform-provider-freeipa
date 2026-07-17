@@ -2,7 +2,7 @@ GO      ?= go
 TF      ?= terraform
 BINARY  := terraform-provider-freeipa
 
-# Nazwa wolumenu i ścieżka do przechowywania czystego stanu
+# Volume name and path for storing clean state
 VOLUME_NAME   := freeipa_freeipa-data
 SNAPSHOT_FILE := .ipa-clean-volume.tar.gz
 
@@ -14,36 +14,36 @@ build:
 test-unit:
 	$(GO) test -v -count=1 ./client/... ./provider/...
 
-# Tworzy złoty snapshot wolumenu. Uruchamiane tylko raz przy pierwszym setupie.
+# Creates a golden snapshot of the volume. Run only once during initial setup.
 $(SNAPSHOT_FILE):
-	@echo "==> [Inicjalizacja] Tworzenie pierwszego, czystego środowiska FreeIPA (to potrwa dłuższą chwilę)..."
+	@echo "==> [Initialization] Creating first, clean FreeIPA environment (this will take a while)..."
 	docker compose down -v
 	docker compose up -d --wait
-	@echo "==> Oczekiwanie na pełną gotowość API..."
+	@echo "==> Waiting for full API readiness..."
 	@until docker exec freeipa-test-server ipa ping >/dev/null 2>&1; do sleep 2; done
-	@echo "==> Zatrzymywanie kontenera w celu bezpiecznego wykonania migawki..."
+	@echo "==> Stopping container for safe snapshot execution..."
 	docker compose stop
-	@echo "==> Archiwizacja wolumenu do $(SNAPSHOT_FILE)..."
+	@echo "==> Archiving volume to $(SNAPSHOT_FILE)..."
 	docker run --rm -v $(VOLUME_NAME):/source:ro -v $(PWD):/backup alpine tar -czf /backup/$(SNAPSHOT_FILE) -C /source .
-	@echo "==> Snapshot utworzony pomyślnie!"
+	@echo "==> Snapshot created successfully!"
 
 snapshot-create:
 	rm -f $(SNAPSHOT_FILE)
 	$(MAKE) $(SNAPSHOT_FILE)
 
-# Błyskawiczne przywrócenie bazy do czystego stanu przed testami
+# Lightning-fast restoration of database to clean state before tests
 snapshot-restore: $(SNAPSHOT_FILE)
-	@echo "==> Przywracanie wolumenu do czystego stanu początkowego..."
+	@echo "==> Restoring volume to clean initial state..."
 	docker compose down
-	# Szybkie czyszczenie wolumenu i wypakowanie archiwum bezpośrednio przez kontener pomocniczy
+	# Quick volume cleanup and archive extraction directly via helper container
 	docker run --rm -v $(VOLUME_NAME):/dest -v $(PWD):/backup alpine sh -c "rm -rf /dest/* && tar -xzf /backup/$(SNAPSHOT_FILE) -C /dest"
 
 docker-up: snapshot-restore
-	@echo "==> Uruchamianie kontenera z przywróconego stanu..."
+	@echo "==> Starting container from restored state..."
 	docker compose up -d --wait
-	@echo "==> Oczekiwanie na gotowość API FreeIPA..."
+	@echo "==> Waiting for FreeIPA API readiness..."
 	@until docker exec freeipa-test-server ipa ping >/dev/null 2>&1; do sleep 1; done
-	@echo "==> FreeIPA jest gotowa do testów!"
+	@echo "==> FreeIPA is ready for testing!"
 
 docker-down:
 	docker compose down
