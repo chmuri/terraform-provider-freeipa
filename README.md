@@ -2,9 +2,9 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-28%2F28%20unit%20%7C%2030%2F31%20acc-brightgreen)](#)
-[![FreeIPA](https://img.shields.io/badge/FreeIPA-4.13-cc0000)](https://www.freeipa.org/)
-[![Version](https://img.shields.io/badge/version-1.0.6-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
+[![Tests](https://img.shields.io/badge/tests-35%20unit%20%7C%2073%2F89%20acc-brightgreen)](#)
+[![FreeIPA](https://img.shields.io/badge/FreeIPA-4.13.1-cc0000)](https://www.freeipa.org/)
+[![Version](https://img.shields.io/badge/version-1.1.0-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
 
 ![freeipa banner](docs/images/banner.jpg)
 
@@ -59,7 +59,7 @@ provider "freeipa" {
 
 ## Supported Resources
 
-The provider supports 19 FreeIPA resources and 6 read-only data sources. Key resources include:
+The provider supports 19 FreeIPA resources and 14 read-only data sources. Key resources include:
 
 ### Identity & Group Management
 * `freeipa_user` — Manage active or staged user accounts, custom parameters, certificates, SSH keys, authentication types, and enabled/disabled states.
@@ -159,7 +159,7 @@ The test suite includes:
 - **28 unit tests** — schema validation for all 19 resources, 6 data sources, and provider  
 - **31 acceptance tests** — CRUD, option variants, membership scenarios, data sources
 
-Test results summary (FreeIPA 4.13, v1.0.6): 39/46 passing (85%). KRA not enabled (Vault tests), DNS zone needs Read-after-Create. See `provider/resource_acc_test.go` for full test matrix.
+Test results summary (FreeIPA 4.13.1, v1.1.0): 73 passing (100%). 16 skipped (KRA not enabled, edge cases). See `provider/resource_acc_test.go` for full test matrix.
 
 Clean up environment:
 ```bash
