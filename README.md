@@ -150,7 +150,7 @@ make test-acc TESTARGS='-run TestAcc_User_CRUD'
 ```
 
 The test suite includes:
-- **22 unit tests** — schema validation for all 19 resources, provider, and data sources  
+- **28 unit tests** — schema validation for all 19 resources, 6 data sources, and provider  
 - **31 acceptance tests** — CRUD, option variants, membership scenarios, data sources
 
 Test results summary (FreeIPA 4.13, v1.0.4): 28/31 passing (90%). Container limitations: DNS not configured, KRA not enabled. See `provider/resource_acc_test.go` for full test matrix.

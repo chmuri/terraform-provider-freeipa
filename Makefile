@@ -20,7 +20,7 @@ $(SNAPSHOT_FILE):
 	docker compose down -v
 	docker compose up -d --wait
 	@echo "==> Waiting for full API readiness..."
-	@until docker exec freeipa-test-server ipa ping >/dev/null 2>&1; do sleep 2; done
+	@until docker exec freeipa-test-server bash -c 'echo "SecretAdminPassword123!" | kinit admin > /dev/null 2>&1 && ipa ping > /dev/null 2>&1'; do sleep 5; done
 	@echo "==> Stopping container for safe snapshot execution..."
 	docker compose stop
 	@echo "==> Archiving volume to $(SNAPSHOT_FILE)..."
@@ -42,7 +42,7 @@ docker-up: snapshot-restore
 	@echo "==> Starting container from restored state..."
 	docker compose up -d --wait
 	@echo "==> Waiting for FreeIPA API readiness..."
-	@until docker exec freeipa-test-server ipa ping >/dev/null 2>&1; do sleep 1; done
+	@until docker exec freeipa-test-server bash -c 'echo "SecretAdminPassword123!" | kinit admin > /dev/null 2>&1 && ipa ping > /dev/null 2>&1'; do sleep 1; done
 	@echo "==> FreeIPA is ready for testing!"
 
 docker-down:
@@ -54,7 +54,7 @@ test-acc: docker-up build
 	FREEIPA_USERNAME=admin \
 	FREEIPA_PASSWORD=SecretAdminPassword123! \
 	FREEIPA_INSECURE=true \
-	$(GO) test -v -timeout 30m -count=1 ./provider/... -run TestAcc
+	$(GO) test -v -timeout 30m -count=1 ./provider/... -run $(or $(TESTARGS),TestAcc)
 
 test-all: test-unit test-acc
 
