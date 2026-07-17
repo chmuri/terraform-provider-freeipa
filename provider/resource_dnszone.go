@@ -86,7 +86,7 @@ func (r *DnsZoneResource) Schema(ctx context.Context, req resource.SchemaRequest
 			"admin_email": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Administrator e-mail address (idnssoamailaddr).",
+				MarkdownDescription: "Administrator e-mail address (idnssoarname).",
 			},
 			"refresh": schema.Int64Attribute{
 				Optional:            true,
@@ -175,22 +175,22 @@ func (r *DnsZoneResource) Configure(ctx context.Context, req resource.ConfigureR
 
 type FreeIPADnsZoneResult struct {
 	Result struct {
-		IdnsName                interface{} `json:"idnsname"`
-		IdnssoaMName            interface{} `json:"idnssoamname"`
-		IdnssoaMailAddr         interface{} `json:"idnssoamailaddr"`
-		IdnssoaRefresh          interface{} `json:"idnssoarefresh"`
-		IdnssoaRetry            interface{} `json:"idnssoaretry"`
-		IdnssoaExpire           interface{} `json:"idnssoaexpire"`
-		IdnssoaMinTTL           interface{} `json:"idnssoaminttl"`
-		DnsTTL                  interface{} `json:"dnsttl"`
-		IdnsDefaultTTL          interface{} `json:"idnsdefaultttl"`
-		IdnsDynamicUpdate       interface{} `json:"idnsdynamicupdate"`
-		IdnsAllowQuery          interface{} `json:"idnsallowquery"`
-		IdnsAllowTransfer       interface{} `json:"idnsallowtransfer"`
-		IdnsAllowSyncPtr        interface{} `json:"idnsallowsyncptr"`
-		IdnsForwarders          interface{} `json:"idnsforwarders"`
-		IdnsForwardPolicy       interface{} `json:"idnsforwardpolicy"`
-		IdnsZoneActive          interface{} `json:"idnszoneactive"`
+		IdnsName          interface{} `json:"idnsname"`
+		IdnssoaMName      interface{} `json:"idnssoamname"`
+		IdnssoaRname    interface{} `json:"idnssoarname"`
+		IdnssoaRefresh    interface{} `json:"idnssoarefresh"`
+		IdnssoaRetry      interface{} `json:"idnssoaretry"`
+		IdnssoaExpire     interface{} `json:"idnssoaexpire"`
+		IdnssoaMinTTL     interface{} `json:"idnssoaminttl"`
+		DnsTTL            interface{} `json:"dnsttl"`
+		IdnsDefaultTTL    interface{} `json:"idnsdefaultttl"`
+		IdnsDynamicUpdate interface{} `json:"idnsdynamicupdate"`
+		IdnsAllowQuery    interface{} `json:"idnsallowquery"`
+		IdnsAllowTransfer interface{} `json:"idnsallowtransfer"`
+		IdnsAllowSyncPtr  interface{} `json:"idnsallowsyncptr"`
+		IdnsForwarders    interface{} `json:"idnsforwarders"`
+		IdnsForwardPolicy interface{} `json:"idnsforwardpolicy"`
+		IdnsZoneActive    interface{} `json:"idnszoneactive"`
 	} `json:"result"`
 }
 
@@ -268,7 +268,7 @@ func (r *DnsZoneResource) Create(ctx context.Context, req resource.CreateRequest
 
 	if adminEmail != "" {
 		err = r.client.Call(ctx, "dnszone_mod", []string{plan.ZoneName.ValueString()}, map[string]interface{}{
-			"idnssoamailaddr": adminEmail,
+			"idnssoarname": adminEmail,
 		}, nil)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to set admin email on FreeIPA DNS zone", err.Error())
@@ -285,6 +285,46 @@ func (r *DnsZoneResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	plan.ID = plan.ZoneName
+
+	if plan.Refresh.IsUnknown() {
+		plan.Refresh = types.Int64Null()
+	}
+	if plan.Retry.IsUnknown() {
+		plan.Retry = types.Int64Null()
+	}
+	if plan.Expire.IsUnknown() {
+		plan.Expire = types.Int64Null()
+	}
+	if plan.Minimum.IsUnknown() {
+		plan.Minimum = types.Int64Null()
+	}
+	if plan.TTL.IsUnknown() {
+		plan.TTL = types.Int64Null()
+	}
+	if plan.DefaultTTL.IsUnknown() {
+		plan.DefaultTTL = types.Int64Null()
+	}
+	if plan.DynamicUpdate.IsUnknown() {
+		plan.DynamicUpdate = types.BoolNull()
+	}
+	if plan.AllowQuery.IsUnknown() {
+		plan.AllowQuery = types.StringNull()
+	}
+	if plan.AllowTransfer.IsUnknown() {
+		plan.AllowTransfer = types.StringNull()
+	}
+	if plan.AllowSyncPtr.IsUnknown() {
+		plan.AllowSyncPtr = types.BoolNull()
+	}
+	if plan.Forwarders.IsUnknown() {
+		plan.Forwarders = types.SetNull(types.StringType)
+	}
+	if plan.ForwardPolicy.IsUnknown() {
+		plan.ForwardPolicy = types.StringNull()
+	}
+	if plan.Enabled.IsUnknown() {
+		plan.Enabled = types.BoolValue(true)
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -319,8 +359,8 @@ func (r *DnsZoneResource) Read(ctx context.Context, req resource.ReadRequest, re
 		state.AuthoritativeNameserver = types.StringNull()
 	}
 
-	if res.IdnssoaMailAddr != nil {
-		state.AdminEmail = types.StringValue(parseStringVal(res.IdnssoaMailAddr))
+	if res.IdnssoaRname != nil {
+		state.AdminEmail = types.StringValue(parseStringVal(res.IdnssoaRname))
 	} else {
 		state.AdminEmail = types.StringNull()
 	}
@@ -386,9 +426,9 @@ func (r *DnsZoneResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 	if !plan.AdminEmail.Equal(state.AdminEmail) {
 		if plan.AdminEmail.IsNull() {
-			opts["idnssoamailaddr"] = ""
+			opts["idnssoarname"] = ""
 		} else {
-			opts["idnssoamailaddr"] = plan.AdminEmail.ValueString()
+			opts["idnssoarname"] = plan.AdminEmail.ValueString()
 		}
 	}
 	if !plan.Refresh.Equal(state.Refresh) {

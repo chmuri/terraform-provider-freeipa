@@ -1153,4 +1153,3 @@ func (r *UserResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 func (r *UserResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
-

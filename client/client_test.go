@@ -161,4 +161,3 @@ func TestClient_RPCError(t *testing.T) {
 		t.Errorf("expected error name NotFoundError, got %s", rpcErr.Name)
 	}
 }
-

@@ -441,4 +441,3 @@ func difference(slice1 []string, slice2 []string) []string {
 	}
 	return diff
 }
-

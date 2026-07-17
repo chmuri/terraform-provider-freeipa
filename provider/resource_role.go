@@ -355,9 +355,9 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	// Member updates
 	memberTypes := []struct {
-		PlanVal      types.Set
-		StateVal     types.Set
-		ParamName    string
+		PlanVal   types.Set
+		StateVal  types.Set
+		ParamName string
 	}{
 		{plan.Users, state.Users, "user"},
 		{plan.Groups, state.Groups, "group"},

@@ -78,8 +78,8 @@ func (r *HbacSvcGroupResource) Configure(ctx context.Context, req resource.Confi
 
 type FreeIPAHbacSvcGroupResult struct {
 	Result struct {
-		Cn                []string `json:"cn"`
-		Description       []string `json:"description"`
+		Cn            []string `json:"cn"`
+		Description   []string `json:"description"`
 		MemberHbacSvc []string `json:"member_hbacsvc"`
 	} `json:"result"`
 }

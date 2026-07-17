@@ -1,5 +1,11 @@
 # Terraform Provider FreeIPA
 
+[![Go Version](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-28%2F28%20unit%20%7C%2030%2F31%20acc-brightgreen)](#)
+[![FreeIPA](https://img.shields.io/badge/FreeIPA-4.13-cc0000)](https://www.freeipa.org/)
+[![Version](https://img.shields.io/badge/version-1.0.5-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
+
 ![freeipa banner](docs/images/banner.jpg)
 
 This is a custom, feature-rich Terraform provider designed to manage identity, access policies, DNS, host enrollment, and secure skiff (Vault) resources directly inside a **FreeIPA** domain using GH[...]
@@ -36,7 +42,7 @@ terraform {
   required_providers {
     freeipa = {
       source  = "chmuri/freeipa"
-      version = "~> 1.0.4"
+      version = "~> 1.0.5"
     }
   }
 }
@@ -153,7 +159,7 @@ The test suite includes:
 - **28 unit tests** — schema validation for all 19 resources, 6 data sources, and provider  
 - **31 acceptance tests** — CRUD, option variants, membership scenarios, data sources
 
-Test results summary (FreeIPA 4.13, v1.0.4): 28/31 passing (90%). Container limitations: DNS not configured, KRA not enabled. See `provider/resource_acc_test.go` for full test matrix.
+Test results summary (FreeIPA 4.13, v1.0.5): 30/31 passing (97%). KRA not enabled in test container (Vault tests). See `provider/resource_acc_test.go` for full test matrix.
 
 Clean up environment:
 ```bash

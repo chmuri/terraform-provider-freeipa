@@ -34,6 +34,10 @@ func parseStringVal(v interface{}) string {
 		if len(val) > 0 {
 			return val[0]
 		}
+	case map[string]interface{}:
+		if dnsName, ok := val["__dns_name__"].(string); ok {
+			return dnsName
+		}
 	}
 	return fmt.Sprintf("%v", v)
 }
@@ -120,4 +124,3 @@ func contains(slice []string, val string) bool {
 	}
 	return false
 }
-

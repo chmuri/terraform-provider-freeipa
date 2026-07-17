@@ -179,11 +179,11 @@ type FreeIPASudoRuleResult struct {
 	Result struct {
 		Cn                 []string      `json:"cn"`
 		Description        []string      `json:"description"`
-		Usercategory            []string      `json:"usercategory"`
-		Hostcategory            []string      `json:"hostcategory"`
-		Cmdcategory             []string      `json:"cmdcategory"`
-		Runasusercategory       []string      `json:"runasusercategory"`
-		Runasgroupcategory      []string      `json:"runasgroupcategory"`
+		Usercategory       []string      `json:"usercategory"`
+		Hostcategory       []string      `json:"hostcategory"`
+		Cmdcategory        []string      `json:"cmdcategory"`
+		Runasusercategory  []string      `json:"runasusercategory"`
+		Runasgroupcategory []string      `json:"runasgroupcategory"`
 		Sudoorder          []interface{} `json:"sudoorder"`
 		Ipasudoorder       []interface{} `json:"ipasudoorder"`
 		Ipaenabledflag     []bool        `json:"ipaenabledflag"`

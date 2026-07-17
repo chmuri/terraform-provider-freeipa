@@ -18,7 +18,6 @@ var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServe
 	},
 }
 
-
 // TestAcc_User_BasicCRUD verifies the basic CRUD operations of the freeipa_user resource.
 func TestAcc_User_BasicCRUD(t *testing.T) {
 	// Only run acceptance tests if TF_ACC env variable is set

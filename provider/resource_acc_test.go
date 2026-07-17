@@ -26,8 +26,8 @@ func sweepUsers(region string) error {
 	cfg := &client.Config{
 		Host: os.Getenv("FREEIPA_HOST"), Insecure: true,
 		AuthMethod: client.AuthPassword,
-		Username: os.Getenv("FREEIPA_USERNAME"),
-		Password: os.Getenv("FREEIPA_PASSWORD"),
+		Username:   os.Getenv("FREEIPA_USERNAME"),
+		Password:   os.Getenv("FREEIPA_PASSWORD"),
 	}
 	c, err := client.NewClient(cfg)
 	if err != nil {
@@ -817,8 +817,8 @@ func TestAcc_Netgroup_WithMembers(t *testing.T) {
 		cfg := &client.Config{
 			Host: os.Getenv("FREEIPA_HOST"), Insecure: true,
 			AuthMethod: client.AuthPassword,
-			Username: os.Getenv("FREEIPA_USERNAME"),
-			Password: os.Getenv("FREEIPA_PASSWORD"),
+			Username:   os.Getenv("FREEIPA_USERNAME"),
+			Password:   os.Getenv("FREEIPA_PASSWORD"),
 		}
 		c, _ := client.NewClient(cfg)
 		if c != nil {

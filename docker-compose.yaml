@@ -15,7 +15,7 @@ services:
       - PASSWORD=SecretAdminPassword123!
       - CONFIGURE_LDAP=yes
       - CONFIGURE_BIND=yes
-      - IPA_SERVER_INSTALL_OPTS=--skip-mem-check -U -r TEST.LOCAL -n test.local --no-ntp
+      - IPA_SERVER_INSTALL_OPTS=--skip-mem-check -U -r TEST.LOCAL -n test.local --no-ntp --setup-dns --no-forwarders
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - freeipa-data:/data

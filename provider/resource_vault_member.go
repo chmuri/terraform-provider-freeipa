@@ -39,12 +39,12 @@ func (r *VaultMemberResource) Schema(ctx context.Context, req resource.SchemaReq
 			"id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Internal identifier (vault name).",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "Name of the vault to which members are attached.",
-				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
 			},
 			"users": schema.SetAttribute{
 				ElementType:         types.StringType,

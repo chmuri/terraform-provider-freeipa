@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.5 (2026-07-17)
+
+### Added
+- **SECURITY.md**: Vulnerability reporting process and security considerations
+- **CONTRIBUTING.md**: Development setup, testing guide, release process
+- **CODE_OF_CONDUCT.md**: Contributor Covenant v2.0
+- **CODEOWNERS**: GitHub code ownership configuration
+- **README badges**: Go version, license, test coverage, FreeIPA version
+
+### Changed
+- **docker-compose**: Enabled DNS plugin (`--setup-dns --no-forwarders`) for full test coverage
+- **version**: 1.0.4 → 1.0.5
+
+### Fixed
+- **Makefile**: Fixed docker healthcheck to use proper Kerberos authentication
+
 ## v1.0.4 (2026-07-17)
 
 ### Fixed

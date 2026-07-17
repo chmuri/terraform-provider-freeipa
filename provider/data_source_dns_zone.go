@@ -157,8 +157,8 @@ func (d *DnsZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		state.AuthoritativeNameserver = types.StringNull()
 	}
 
-	if res.IdnssoaMailAddr != nil {
-		state.AdminEmail = types.StringValue(parseStringVal(res.IdnssoaMailAddr))
+	if res.IdnssoaRname != nil {
+		state.AdminEmail = types.StringValue(parseStringVal(res.IdnssoaRname))
 	} else {
 		state.AdminEmail = types.StringNull()
 	}

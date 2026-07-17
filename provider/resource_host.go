@@ -116,12 +116,12 @@ func (r *HostResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "Force host addition even if DNS verification fails.",
 			},
-		"managed_by": schema.SetAttribute{
-			ElementType:         types.StringType,
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Set of host FQDNs that can manage this host.",
-		},
+			"managed_by": schema.SetAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Set of host FQDNs that can manage this host.",
+			},
 		},
 	}
 }
@@ -540,4 +540,3 @@ func (r *HostResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 func (r *HostResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
-
