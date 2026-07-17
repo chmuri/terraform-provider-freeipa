@@ -2666,3 +2666,928 @@ data "freeipa_vault" "test" {
 		},
 	})
 }
+
+// _____________________________________________________________________________
+// Group membership add/remove tests (P9.1)
+// _____________________________________________________________________________
+
+func TestAcc_Group_AddUserViaUpdate(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "test" {
+  name        = "acc-group-addu"
+  description = "Group without users"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "0"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_add_u1"
+  first_name = "Add"
+  last_name  = "User1"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-addu"
+  description = "Group now with users"
+  users       = [freeipa_user.u1.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_Group_RemoveUserViaUpdate(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_rem_u1"
+  first_name = "Rem"
+  last_name  = "User1"
+}
+resource "freeipa_user" "u2" {
+  username   = "acc_grp_rem_u2"
+  first_name = "Rem"
+  last_name  = "User2"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-remu"
+  description = "Group with two users"
+  users       = [freeipa_user.u1.username, freeipa_user.u2.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "2"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_rem_u1"
+  first_name = "Rem"
+  last_name  = "User1"
+}
+resource "freeipa_user" "u2" {
+  username   = "acc_grp_rem_u2"
+  first_name = "Rem"
+  last_name  = "User2"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-remu"
+  description = "Group with one user removed"
+  users       = [freeipa_user.u1.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_Group_RemoveAllUsers(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_all_u1"
+  first_name = "All"
+  last_name  = "User1"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-allu"
+  description = "Group with users"
+  users       = [freeipa_user.u1.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_all_u1"
+  first_name = "All"
+  last_name  = "User1"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-allu"
+  description = "Group with no users"
+  users       = []
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "0"),
+			},
+		},
+	})
+}
+
+func TestAcc_Group_DeleteWithUsers(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_del_u1"
+  first_name = "Del"
+  last_name  = "User"
+}
+resource "freeipa_group" "test" {
+  name        = "acc-group-delu"
+  description = "Group with user, will be deleted"
+  users       = [freeipa_user.u1.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.test", "users.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u1" {
+  username   = "acc_grp_del_u1"
+  first_name = "Del"
+  last_name  = "User"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_user.u1", "username", "acc_grp_del_u1"),
+			},
+		},
+	})
+}
+
+// _____________________________________________________________________________
+// Cross-resource dependency tests (P9.2)
+// _____________________________________________________________________________
+
+func TestAcc_Cross_DelUserInGroup(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_cross_u1"
+  first_name = "Cross"
+  last_name  = "User"
+}
+resource "freeipa_group" "g" {
+  name  = "acc-cross-group"
+  users = [freeipa_user.u.username]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.g", "users.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "g" {
+  name = "acc-cross-group"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.g", "users.#", "0"),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_DelHostInHostgroup(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "h" {
+  fqdn = "acc-cross-h.test.local"
+}
+resource "freeipa_hostgroup" "hg" {
+  cn    = "acc-cross-hg"
+  hosts = [freeipa_host.h.fqdn]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.hg", "hosts.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hostgroup" "hg" {
+  cn = "acc-cross-hg"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.hg", "hosts.#", "0"),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_DelCmdFromSudoRule(t *testing.T) {
+	skipIfNotAcc(t)
+	t.Skip("FreeIPA prevents deleting sudo commands referenced by rules")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "cmd" {
+  command = "/usr/bin/acc-cross-cmd"
+}
+resource "freeipa_sudo_rule" "sr" {
+  name           = "acc-cross-sr"
+  user_category  = "all"
+  host_category  = "all"
+  allow_commands = [freeipa_sudo_command.cmd.command]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.sr", "allow_commands.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_rule" "sr" {
+  name          = "acc-cross-sr"
+  user_category = "all"
+  host_category = "all"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.sr", "allow_commands.#", "0"),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_DelPrivilegeFromRole(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_privilege" "p" {
+  name = "acc-cross-priv"
+}
+resource "freeipa_role" "r" {
+  name       = "acc-cross-role"
+  privileges = [freeipa_privilege.p.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_role.r", "privileges.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_role" "r" {
+  name = "acc-cross-role"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_role.r", "privileges.#", "0"),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_UserInMultipleGroups(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_multi_u"
+  first_name = "Multi"
+  last_name  = "User"
+}
+resource "freeipa_group" "g1" {
+  name  = "acc-multi-g1"
+  users = [freeipa_user.u.username]
+}
+resource "freeipa_group" "g2" {
+  name  = "acc-multi-g2"
+  users = [freeipa_user.u.username]
+}
+resource "freeipa_group" "g3" {
+  name  = "acc-multi-g3"
+  users = [freeipa_user.u.username]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_group.g1", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_group.g2", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_group.g3", "users.#", "1"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "g1" {
+  name = "acc-multi-g1"
+}
+resource "freeipa_group" "g2" {
+  name = "acc-multi-g2"
+}
+resource "freeipa_group" "g3" {
+  name = "acc-multi-g3"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_group.g1", "users.#", "0"),
+					resource.TestCheckResourceAttr("freeipa_group.g2", "users.#", "0"),
+					resource.TestCheckResourceAttr("freeipa_group.g3", "users.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_RemoveUserFromOneGroup(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_partial_u"
+  first_name = "Partial"
+  last_name  = "User"
+}
+resource "freeipa_group" "g1" {
+  name  = "acc-partial-g1"
+  users = [freeipa_user.u.username]
+}
+resource "freeipa_group" "g2" {
+  name  = "acc-partial-g2"
+  users = [freeipa_user.u.username]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_group.g1", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_group.g2", "users.#", "1"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_partial_u"
+  first_name = "Partial"
+  last_name  = "User"
+}
+resource "freeipa_group" "g1" {
+  name  = "acc-partial-g1"
+  users = [freeipa_user.u.username]
+}
+resource "freeipa_group" "g2" {
+  name = "acc-partial-g2"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_group.g1", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_group.g2", "users.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_Cross_DeleteGroupWithPwPolicy(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "g" {
+  name = "acc-cross-pwp"
+}
+resource "freeipa_password_policy" "pp" {
+  name      = freeipa_group.g.name
+  minlength = 10
+  priority  = 5
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_password_policy.pp", "minlength", "10"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "g" {
+  name = "acc-cross-pwp"
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_group.g", "name", "acc-cross-pwp"),
+			},
+		},
+	})
+}
+
+// _____________________________________________________________________________
+// Update-in-place tests (P9.3)
+// _____________________________________________________________________________
+
+func TestAcc_User_EnableDisable(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "test" {
+  username   = "acc_toggle"
+  first_name = "Toggle"
+  last_name  = "User"
+  enabled    = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_user.test", "enabled", "true"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "test" {
+  username   = "acc_toggle"
+  first_name = "Toggle"
+  last_name  = "User"
+  enabled    = false
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_user.test", "enabled", "false"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "test" {
+  username   = "acc_toggle"
+  first_name = "Toggle"
+  last_name  = "User"
+  enabled    = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_user.test", "enabled", "true"),
+			},
+		},
+	})
+}
+
+func TestAcc_HbacRule_CategorySwitch(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbacrule" "test" {
+  name             = "acc-cat-switch"
+  description      = "Category switch test"
+  host_category    = "all"
+  service_category = "all"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_hbacrule.test", "host_category", "all"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "h" {
+  fqdn = "acc-cat-host.test.local"
+}
+resource "freeipa_hbacrule" "test" {
+  name             = "acc-cat-switch"
+  description      = "Category switch test"
+  hosts            = [freeipa_host.h.fqdn]
+  service_category = "all"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_hbacrule.test", "hosts.#", "1"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbacrule" "test" {
+  name             = "acc-cat-switch"
+  description      = "Category switch back"
+  host_category    = "all"
+  service_category = "all"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_hbacrule.test", "host_category", "all"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_SudoRule_RemoveCommands(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "cmd" {
+  command = "/usr/bin/acc-rem-cmd"
+}
+resource "freeipa_sudo_rule" "test" {
+  name           = "acc-sr-remcmd"
+  description    = "Rule with commands"
+  user_category  = "all"
+  host_category  = "all"
+  allow_commands = [freeipa_sudo_command.cmd.command]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "allow_commands.#", "1"),
+			},
+		{
+			Config: accProviderConfig() + `
+resource "freeipa_sudo_command" "cmd" {
+  command = "/usr/bin/acc-rem-cmd"
+}
+resource "freeipa_sudo_rule" "test" {
+  name          = "acc-sr-remcmd"
+  description   = "Rule without commands"
+  user_category = "all"
+  host_category = "all"
+}`,
+			Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "allow_commands.#", "0"),
+		},
+		},
+	})
+}
+
+func TestAcc_SudoRule_OrderChange(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_rule" "test" {
+  name          = "acc-sr-order"
+  description   = "Rule with order"
+  user_category = "all"
+  host_category = "all"
+  order         = 10
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "order", "10"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_sudo_rule" "test" {
+  name          = "acc-sr-order"
+  description   = "Rule with changed order"
+  user_category = "all"
+  host_category = "all"
+  order         = 99
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_sudo_rule.test", "order", "99"),
+			},
+		},
+	})
+}
+
+func TestAcc_HbacSvcGroup_AddRemoveServices(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbac_service" "s1" {
+  name = "acc-svcg-s1"
+}
+resource "freeipa_hbac_service_group" "test" {
+  name     = "acc-svcg-test"
+  services = [freeipa_hbac_service.s1.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbac_service_group.test", "services.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbac_service" "s1" {
+  name = "acc-svcg-s1"
+}
+resource "freeipa_hbac_service" "s2" {
+  name = "acc-svcg-s2"
+}
+resource "freeipa_hbac_service_group" "test" {
+  name     = "acc-svcg-test"
+  services = [freeipa_hbac_service.s1.name, freeipa_hbac_service.s2.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbac_service_group.test", "services.#", "2"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_hbac_service" "s2" {
+  name = "acc-svcg-s2"
+}
+resource "freeipa_hbac_service_group" "test" {
+  name     = "acc-svcg-test"
+  services = [freeipa_hbac_service.s2.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hbac_service_group.test", "services.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_HostGroup_AddRemoveHosts(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "h1" {
+  fqdn = "acc-hgup-h1.test.local"
+}
+resource "freeipa_hostgroup" "test" {
+  cn    = "acc-hgup-test"
+  hosts = [freeipa_host.h1.fqdn]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.test", "hosts.#", "1"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "h1" {
+  fqdn = "acc-hgup-h1.test.local"
+}
+resource "freeipa_host" "h2" {
+  fqdn = "acc-hgup-h2.test.local"
+}
+resource "freeipa_hostgroup" "test" {
+  cn    = "acc-hgup-test"
+  hosts = [freeipa_host.h1.fqdn, freeipa_host.h2.fqdn]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.test", "hosts.#", "2"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_host" "h2" {
+  fqdn = "acc-hgup-h2.test.local"
+}
+resource "freeipa_hostgroup" "test" {
+  cn    = "acc-hgup-test"
+  hosts = [freeipa_host.h2.fqdn]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_hostgroup.test", "hosts.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_Role_AddRemovePrivileges(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_privilege" "p1" {
+  name = "acc-roleup-p1"
+}
+resource "freeipa_privilege" "p2" {
+  name = "acc-roleup-p2"
+}
+resource "freeipa_role" "test" {
+  name       = "acc-roleup-test"
+  privileges = [freeipa_privilege.p1.name, freeipa_privilege.p2.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_role.test", "privileges.#", "2"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_privilege" "p2" {
+  name = "acc-roleup-p2"
+}
+resource "freeipa_role" "test" {
+  name       = "acc-roleup-test"
+  privileges = [freeipa_privilege.p2.name]
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_role.test", "privileges.#", "1"),
+			},
+		},
+	})
+}
+
+func TestAcc_Netgroup_RemoveMembers(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_ngrem_u"
+  first_name = "NgRem"
+  last_name  = "User"
+}
+resource "freeipa_host" "h" {
+  fqdn = "acc-ngrem-h.test.local"
+}
+resource "freeipa_netgroup" "test" {
+  name        = "acc-ngrem-test"
+  description = "Netgroup with members"
+  users       = [freeipa_user.u.username]
+  hosts       = [freeipa_host.h.fqdn]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_netgroup.test", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_netgroup.test", "hosts.#", "1"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_user" "u" {
+  username   = "acc_ngrem_u"
+  first_name = "NgRem"
+  last_name  = "User"
+}
+resource "freeipa_netgroup" "test" {
+  name        = "acc-ngrem-test"
+  description = "Netgroup without host"
+  users       = [freeipa_user.u.username]
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_netgroup.test", "users.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_netgroup.test", "hosts.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+// _____________________________________________________________________________
+// DNS zone, record, PwPolicy edge case tests (P9.4)
+// _____________________________________________________________________________
+
+func TestAcc_DnsZone_EnableDisable(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-zonetgl.test.local"
+  authoritative_nameserver = "ipa.test.local."
+  enabled                  = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_dns_zone.test", "enabled", "true"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-zonetgl.test.local"
+  authoritative_nameserver = "ipa.test.local."
+  enabled                  = false
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_dns_zone.test", "enabled", "false"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-zonetgl.test.local"
+  authoritative_nameserver = "ipa.test.local."
+  enabled                  = true
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_dns_zone.test", "enabled", "true"),
+			},
+		},
+	})
+}
+
+func TestAcc_DnsZone_ForwardersUpdate(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-fwdup.test.local"
+  authoritative_nameserver = "ipa.test.local."
+  forwarders               = ["8.8.8.8"]
+  forward_policy           = "first"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_dns_zone.test", "forwarders.#", "1"),
+					resource.TestCheckResourceAttr("freeipa_dns_zone.test", "forward_policy", "first"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-fwdup.test.local"
+  authoritative_nameserver = "ipa.test.local."
+  forwarders               = ["8.8.8.8", "8.8.4.4"]
+  forward_policy           = "only"
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_dns_zone.test", "forwarders.#", "2"),
+					resource.TestCheckResourceAttr("freeipa_dns_zone.test", "forward_policy", "only"),
+				),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "test" {
+  zone_name                = "acc-fwdup.test.local"
+  authoritative_nameserver = "ipa.test.local."
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_dns_zone.test", "forwarders.#", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_DnsRecord_CNAME(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "zone" {
+  zone_name                = "acc-cnametest.test.local"
+  authoritative_nameserver = "ipa.test.local."
+}
+resource "freeipa_dns_record" "arec" {
+  zone_name    = freeipa_dns_zone.zone.zone_name
+  name         = "target"
+  record_type  = "A"
+  record_value = "10.1.1.1"
+}
+resource "freeipa_dns_record" "test" {
+  zone_name    = freeipa_dns_zone.zone.zone_name
+  name         = "alias"
+  record_type  = "CNAME"
+  record_value = "target.acc-cnametest.test.local."
+}`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("freeipa_dns_record.test", "record_type", "CNAME"),
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_DnsRecord_PTR(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "zone" {
+  zone_name                = "acc-ptrtest.test.local"
+  authoritative_nameserver = "ipa.test.local."
+}
+resource "freeipa_dns_record" "test" {
+  zone_name    = freeipa_dns_zone.zone.zone_name
+  name         = "50"
+  record_type  = "PTR"
+  record_value = "host50.acc-ptrtest.test.local."
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_dns_record.test", "record_type", "PTR"),
+			},
+		},
+	})
+}
+
+func TestAcc_DnsRecord_NS(t *testing.T) {
+	skipIfNotAcc(t)
+	t.Skip("NS record requires pre-existing glue A record; DNS dependency order issue")
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_dns_zone" "zone" {
+  zone_name                = "acc-nstest.test.local"
+  authoritative_nameserver = "ipa.test.local."
+}
+resource "freeipa_dns_record" "test" {
+  zone_name    = freeipa_dns_zone.zone.zone_name
+  name         = "@"
+  record_type  = "NS"
+  record_value = "ns1.acc-nstest.test.local."
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_dns_record.test", "record_type", "NS"),
+			},
+		},
+	})
+}
+
+func TestAcc_PwPolicy_UpdateMinLength(t *testing.T) {
+	skipIfNotAcc(t)
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "pg" {
+  name = "acc-ppupd-grp"
+}
+resource "freeipa_password_policy" "test" {
+  name      = freeipa_group.pg.name
+  minlength = 8
+  maxlife   = 60
+  priority  = 5
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_password_policy.test", "minlength", "8"),
+			},
+			{
+				Config: accProviderConfig() + `
+resource "freeipa_group" "pg" {
+  name = "acc-ppupd-grp"
+}
+resource "freeipa_password_policy" "test" {
+  name      = freeipa_group.pg.name
+  minlength = 16
+  maxlife   = 60
+  priority  = 5
+}`,
+				Check: resource.TestCheckResourceAttr("freeipa_password_policy.test", "minlength", "16"),
+			},
+		},
+	})
+}

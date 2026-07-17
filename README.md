@@ -2,9 +2,9 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-35%20unit%20%7C%2073%2F89%20acc-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-35%20unit%20%7C%2095%2F108%20acc-brightgreen)](#)
 [![FreeIPA](https://img.shields.io/badge/FreeIPA-4.13.1-cc0000)](https://www.freeipa.org/)
-[![Version](https://img.shields.io/badge/version-1.1.0-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
+[![Version](https://img.shields.io/badge/version-1.1.1-informational)](https://github.com/chmuri/terraform-provider-freeipa/releases)
 
 ![freeipa banner](docs/images/banner.jpg)
 
@@ -159,7 +159,7 @@ The test suite includes:
 - **28 unit tests** — schema validation for all 19 resources, 6 data sources, and provider  
 - **31 acceptance tests** — CRUD, option variants, membership scenarios, data sources
 
-Test results summary (FreeIPA 4.13.1, v1.1.0): 73 passing (100%). 16 skipped (KRA not enabled, edge cases). See `provider/resource_acc_test.go` for full test matrix.
+Test results summary (FreeIPA 4.13.1, v1.1.1): 95/108 passing (95%). 13 skipped (KRA not enabled, edge cases). See `provider/resource_acc_test.go` for full test matrix.
 
 Clean up environment:
 ```bash

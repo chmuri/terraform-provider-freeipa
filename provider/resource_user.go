@@ -1133,6 +1133,9 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	if plan.Gid.IsUnknown() {
 		plan.Gid = state.Gid
 	}
+	if plan.Email.IsUnknown() {
+		plan.Email = state.Email
+	}
 
 	diags := resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

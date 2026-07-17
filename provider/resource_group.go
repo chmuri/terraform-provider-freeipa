@@ -250,7 +250,17 @@ func (r *GroupResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.Append(d...)
 		state.Users = usersVal
 	} else {
-		state.Users = types.SetNull(types.StringType)
+		// If state already had an empty users set (explicitly set by user),
+		// keep it as empty rather than null to avoid diff on refresh
+		var existingUsers []string
+		if !state.Users.IsNull() && !state.Users.IsUnknown() {
+			state.Users.ElementsAs(ctx, &existingUsers, false)
+		}
+		if len(existingUsers) == 0 && !state.Users.IsNull() {
+			// Already empty, preserve
+		} else {
+			state.Users = types.SetNull(types.StringType)
+		}
 	}
 
 	if len(res.MemberGroup) > 0 {
@@ -258,7 +268,14 @@ func (r *GroupResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.Append(d...)
 		state.Groups = groupsVal
 	} else {
-		state.Groups = types.SetNull(types.StringType)
+		var existingGroups []string
+		if !state.Groups.IsNull() && !state.Groups.IsUnknown() {
+			state.Groups.ElementsAs(ctx, &existingGroups, false)
+		}
+		if len(existingGroups) == 0 && !state.Groups.IsNull() {
+		} else {
+			state.Groups = types.SetNull(types.StringType)
+		}
 	}
 
 	if len(res.MemberManagerUser) > 0 {
@@ -266,7 +283,14 @@ func (r *GroupResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.Append(d...)
 		state.MemberManagers = managersVal
 	} else {
-		state.MemberManagers = types.SetNull(types.StringType)
+		var existingMgrs []string
+		if !state.MemberManagers.IsNull() && !state.MemberManagers.IsUnknown() {
+			state.MemberManagers.ElementsAs(ctx, &existingMgrs, false)
+		}
+		if len(existingMgrs) == 0 && !state.MemberManagers.IsNull() {
+		} else {
+			state.MemberManagers = types.SetNull(types.StringType)
+		}
 	}
 
 	diags = resp.State.Set(ctx, &state)

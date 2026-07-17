@@ -454,14 +454,14 @@ func (r *DnsZoneResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	opts := map[string]interface{}{}
-	if !plan.AuthoritativeNameserver.Equal(state.AuthoritativeNameserver) {
+	if !plan.AuthoritativeNameserver.Equal(state.AuthoritativeNameserver) && !plan.AuthoritativeNameserver.IsUnknown() {
 		if plan.AuthoritativeNameserver.IsNull() {
 			opts["idnssoamname"] = ""
 		} else {
 			opts["idnssoamname"] = plan.AuthoritativeNameserver.ValueString()
 		}
 	}
-	if !plan.AdminEmail.Equal(state.AdminEmail) {
+	if !plan.AdminEmail.Equal(state.AdminEmail) && !plan.AdminEmail.IsUnknown() {
 		if plan.AdminEmail.IsNull() {
 			opts["idnssoarname"] = ""
 		} else {
@@ -578,6 +578,51 @@ func (r *DnsZoneResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	diags := resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+
+	if plan.Refresh.IsUnknown() {
+		plan.Refresh = state.Refresh
+	}
+	if plan.Retry.IsUnknown() {
+		plan.Retry = state.Retry
+	}
+	if plan.Expire.IsUnknown() {
+		plan.Expire = state.Expire
+	}
+	if plan.Minimum.IsUnknown() {
+		plan.Minimum = state.Minimum
+	}
+	if plan.TTL.IsUnknown() {
+		plan.TTL = state.TTL
+	}
+	if plan.DefaultTTL.IsUnknown() {
+		plan.DefaultTTL = state.DefaultTTL
+	}
+	if plan.DynamicUpdate.IsUnknown() {
+		plan.DynamicUpdate = state.DynamicUpdate
+	}
+	if plan.AllowQuery.IsUnknown() {
+		plan.AllowQuery = state.AllowQuery
+	}
+	if plan.AllowTransfer.IsUnknown() {
+		plan.AllowTransfer = state.AllowTransfer
+	}
+	if plan.AllowSyncPtr.IsUnknown() {
+		plan.AllowSyncPtr = state.AllowSyncPtr
+	}
+	if plan.Forwarders.IsUnknown() {
+		plan.Forwarders = state.Forwarders
+	}
+	if plan.ForwardPolicy.IsUnknown() {
+		plan.ForwardPolicy = state.ForwardPolicy
+	}
+	if plan.AdminEmail.IsUnknown() {
+		plan.AdminEmail = state.AdminEmail
+	}
+	if plan.AuthoritativeNameserver.IsUnknown() {
+		plan.AuthoritativeNameserver = state.AuthoritativeNameserver
+	}
+	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 }
 

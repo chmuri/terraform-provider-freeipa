@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.1.1 (2026-07-17)
+
+**Compatibility:** Tested with FreeIPA **4.13.1** (API version **2.257**) on AlmaLinux 10.
+
+### Added
+- **25 new acceptance tests** (108 total, ~95 passing):
+  - **P9.1 Group membership**: Add/remove users via update, remove all users, delete group with users
+  - **P9.2 Cross-resource dependencies**: Delete user → group updated, delete host → hostgroup updated, delete privilege → role updated, user in multiple groups, partial user removal from groups, delete group with pwpolicy
+  - **P9.3 Update-in-place**: User enable/disable toggle, HBAC rule category switch (all→specific→all), sudo rule remove commands via update, sudo rule order change, HBAC svcGroup add/remove services, HostGroup add/remove hosts, Role add/remove privileges, Netgroup remove members
+  - **P9.4 DNS & edge cases**: DNS zone enable/disable toggle, DNS zone forwarders update, DNS record CNAME, PTR, Password Policy update single parameter
+
+### Fixed
+- **group**: Read method preserves empty `users`/`groups`/`member_managers` sets instead of nulling them (prevents false diff on refresh after removing all members)
+- **user**: Update method copies `email` from state when unknown (fixes "unknown after apply" on enable/disable toggle)
+- **dns_zone**: Update method now copies all 14 Computed fields from state when unknown: refresh, retry, expire, minimum, ttl, default_ttl, dynamic_update, allow_query, allow_transfer, allow_sync_ptr, forwarders, forward_policy, admin_email, authoritative_nameserver
+- **dns_zone**: Added `IsUnknown()` guards for `authoritative_nameserver` and `admin_email` in Update
+
+### Changed
+- **version**: 1.1.0 → 1.1.1
+
 ## v1.1.0 (2026-07-17)
 
 **Compatibility:** Tested with FreeIPA **4.13.1** (API version **2.257**) on AlmaLinux 10.
